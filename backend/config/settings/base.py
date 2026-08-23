@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'apps.tracking',
     'apps.synchronization',
     'apps.eta',
+    'apps.pricing',
     'channels',
 ]
 
