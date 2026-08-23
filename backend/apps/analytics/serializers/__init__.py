@@ -6,6 +6,11 @@ from .fuel import (
     FuelTrendSerializer,
     FuelRecommendationSerializer,
 )
+from .performance import (
+    TransporterPerformanceSerializer,
+    CorridorBenchmarkSerializer,
+    TransporterDashboardResponseSerializer,
+)
 
 __all__ = [
     'TripFuelRecordSerializer',
@@ -14,4 +19,7 @@ __all__ = [
     'DriverFuelMetricsSerializer',
     'FuelTrendSerializer',
     'FuelRecommendationSerializer',
+    'TransporterPerformanceSerializer',
+    'CorridorBenchmarkSerializer',
+    'TransporterDashboardResponseSerializer',
 ]

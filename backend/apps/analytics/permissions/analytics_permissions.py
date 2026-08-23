@@ -24,3 +24,15 @@ class CanRecordFuelData(permissions.BasePermission):
     """
     def has_permission(self, request, view):
         return bool(request.user and request.user.is_authenticated)
+
+
+class CanViewTransporterPerformance(permissions.BasePermission):
+    """
+    Transporter can view own performance analytics. Admin can view any transporter.
+    Unauthorized users are denied access.
+    """
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        user_role = getattr(request.user, 'role', '')
+        return user_role in ['TRANSPORTER', 'ADMIN'] or request.user.is_staff

@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -10,18 +11,32 @@ from apps.analytics.selectors import (
     get_fuel_record_for_shipment,
     get_vehicle_fuel_summary,
     get_driver_fuel_summary,
-    get_fuel_trends_data
+    get_fuel_trends_data,
+    get_transporter_performance,
+    get_transporter_performance_history,
+    get_corridor_benchmark_data
 )
-from apps.analytics.services import record_trip_fuel, generate_fuel_recommendations
+from apps.analytics.services import (
+    record_trip_fuel,
+    generate_fuel_recommendations,
+    generate_monthly_performance
+)
 from apps.analytics.serializers import (
     TripFuelRecordSerializer,
     RecordTripFuelSerializer,
     VehicleFuelMetricsSerializer,
     DriverFuelMetricsSerializer,
     FuelTrendSerializer,
-    FuelRecommendationSerializer
+    FuelRecommendationSerializer,
+    TransporterPerformanceSerializer,
+    CorridorBenchmarkSerializer,
+    TransporterDashboardResponseSerializer
 )
-from apps.analytics.permissions import CanViewFuelAnalytics, CanRecordFuelData
+from apps.analytics.permissions import (
+    CanViewFuelAnalytics,
+    CanRecordFuelData,
+    CanViewTransporterPerformance
+)
 
 def verify_shipment_analytics_access(user, shipment_id):
     shipment = Shipment.objects.filter(id=shipment_id).first()
@@ -123,4 +138,51 @@ class FuelRecommendationsAPIView(APIView):
 
         recs = generate_fuel_recommendations(vehicle_id=vehicle_id, driver_id=driver_id)
         serializer = FuelRecommendationSerializer(recs, many=True)
+        return success_response(data=serializer.data)
+
+
+class TransporterPerformanceDashboardAPIView(APIView):
+    permission_classes = [IsAuthenticated, CanViewTransporterPerformance]
+
+    def get(self, request):
+        now = timezone.now()
+        year = int(request.query_params.get('year', now.year))
+        month = int(request.query_params.get('month', now.month))
+
+        target_transporter_id = request.user.id
+        param_transporter_id = request.query_params.get('transporter_id')
+        user_role = getattr(request.user, 'role', '')
+
+        if param_transporter_id:
+            if not (request.user.is_staff or user_role == 'ADMIN'):
+                raise PermissionDeniedException("You are not authorized to view performance metrics for other transporters.")
+            target_transporter_id = param_transporter_id
+
+        perf = generate_monthly_performance(transporter_id=target_transporter_id, year=year, month=month)
+        benchmark = get_corridor_benchmark_data(year=year, month=month)
+
+        perf_serializer = TransporterPerformanceSerializer(perf)
+        bench_serializer = CorridorBenchmarkSerializer(benchmark)
+
+        return success_response(data={
+            "performance": perf_serializer.data,
+            "corridor_benchmark": bench_serializer.data
+        })
+
+
+class TransporterPerformanceHistoryAPIView(APIView):
+    permission_classes = [IsAuthenticated, CanViewTransporterPerformance]
+
+    def get(self, request):
+        target_transporter_id = request.user.id
+        param_transporter_id = request.query_params.get('transporter_id')
+        user_role = getattr(request.user, 'role', '')
+
+        if param_transporter_id:
+            if not (request.user.is_staff or user_role == 'ADMIN'):
+                raise PermissionDeniedException("You are not authorized to view performance metrics for other transporters.")
+            target_transporter_id = param_transporter_id
+
+        history = get_transporter_performance_history(target_transporter_id)
+        serializer = TransporterPerformanceSerializer(history, many=True)
         return success_response(data=serializer.data)

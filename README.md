@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–19)
+## Domain Architecture (Phases 3–20)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -144,6 +144,13 @@
 - **`GET /api/v1/drivers/<uuid:driver_id>/fuel-metrics/`**: Driver fuel efficiency metrics summary & breakdown.
 - **`GET /api/v1/analytics/fuel/trends/`**: Aggregated monthly/weekly fuel trends.
 - **`GET /api/v1/analytics/fuel/recommendations/`**: Rule-based fuel-saving recommendations.
+
+### Transporter Performance Analytics (`apps.analytics`)
+- **`TransporterPerformance`**: Monthly performance aggregate entity (`transporter`, `year`, `month`, `period`, `completed_trips`, `on_time_trips`, `on_time_delivery_rate`, `incident_count`, `incident_rate`, `total_distance_km`, `total_fuel_liters`, `fuel_efficiency`, `average_rating`, `rating_count`, `calculated_at`). Enforces `UniqueConstraint(fields=['transporter', 'year', 'month'])` for idempotent monthly recalculations (FR-09.1).
+- **Operational Data Consumed**: Shipment completion Deadlines (Phase 10), Fuel analytics distance/liters (Phase 18), Incident reports & security alerts (Phase 19), Customer ratings. Zero-safe calculations for 0-trip edge cases.
+- **Anonymized Corridor Benchmark (FR-09.2)**: `calculate_corridor_benchmark()` computes corridor-wide average on-time delivery rate, incident rate, fuel efficiency, and rating across all transporters while protecting individual competitor identities.
+- **`GET /api/v1/analytics/transporter/performance/`**: Self-service dashboard API returning authenticated transporter's metrics + anonymized corridor benchmark comparison.
+- **`GET /api/v1/analytics/transporter/performance/history/`**: Historical monthly performance list API.
 
 ### Risk Zones & Security Alerts Engine (`apps.risk`)
 - **`RiskZone`**: Geographic conflict and threat zone entity (`name`, `description`, `location` PostGIS `PointField`, `polygon` PostGIS `PolygonField`, `latitude`, `longitude`, `radius_km`, `severity`: `LOW`/`MEDIUM`/`HIGH`/`CRITICAL`, `source`: `GOVERNMENT_ADVISORY`/`VERIFIED_CROWDSOURCE`/`ADMIN`, `is_active`, `effective_from`, `effective_until`).

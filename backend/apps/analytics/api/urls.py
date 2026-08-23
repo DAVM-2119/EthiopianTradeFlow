@@ -5,6 +5,8 @@ from .views import (
     DriverFuelMetricsAPIView,
     FuelTrendsAPIView,
     FuelRecommendationsAPIView,
+    TransporterPerformanceDashboardAPIView,
+    TransporterPerformanceHistoryAPIView,
 )
 
 urlpatterns = [
@@ -13,4 +15,6 @@ urlpatterns = [
     path('drivers/<uuid:driver_id>/fuel-metrics/', DriverFuelMetricsAPIView.as_view(), name='driver-fuel-metrics'),
     path('analytics/fuel/trends/', FuelTrendsAPIView.as_view(), name='analytics-fuel-trends'),
     path('analytics/fuel/recommendations/', FuelRecommendationsAPIView.as_view(), name='analytics-fuel-recommendations'),
+    path('analytics/transporter/performance/', TransporterPerformanceDashboardAPIView.as_view(), name='transporter-performance-dashboard'),
+    path('analytics/transporter/performance/history/', TransporterPerformanceHistoryAPIView.as_view(), name='transporter-performance-history'),
 ]
