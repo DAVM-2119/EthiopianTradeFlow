@@ -10,6 +10,13 @@ import { DashboardPage } from '../pages/dashboard/DashboardPage';
 import { ProfilePage } from '../pages/profile/ProfilePage';
 import { EditProfilePage } from '../pages/profile/EditProfilePage';
 import { ChangePasswordPage } from '../pages/profile/ChangePasswordPage';
+
+// Marketplace & Loads Pages
+import { LoadsPage } from '../pages/loads/LoadsPage';
+import { CreateLoadPage } from '../pages/loads/CreateLoadPage';
+import { LoadDetailsPage } from '../pages/loads/LoadDetailsPage';
+import { EditLoadPage } from '../pages/loads/EditLoadPage';
+
 import { NotFoundPage } from '../pages/NotFoundPage';
 
 export const AppRoutes = () => {
@@ -30,8 +37,14 @@ export const AppRoutes = () => {
           <Route path="/profile/edit" element={<EditProfilePage />} />
           <Route path="/profile/change-password" element={<ChangePasswordPage />} />
 
+          {/* Phase 23.5 Marketplace & Loads Sub-routes */}
+          <Route path="/loads" element={<LoadsPage />} />
+          <Route path="/marketplace" element={<LoadsPage />} />
+          <Route path="/loads/create" element={<CreateLoadPage />} />
+          <Route path="/loads/:id" element={<LoadDetailsPage />} />
+          <Route path="/loads/:id/edit" element={<EditLoadPage />} />
+
           {/* Future Sub-phase Domain Shell Placeholders */}
-          <Route path="/loads" element={<DashboardPage />} />
           <Route path="/bids" element={<DashboardPage />} />
           <Route path="/shipments" element={<DashboardPage />} />
           <Route path="/tracking" element={<DashboardPage />} />

@@ -22,15 +22,14 @@
 
 ---
 
-## Frontend Web Application & Role Dashboard (`frontend/`)
-- **Role-Aware Dashboard & Metrics Engine (`GET /api/v1/dashboard/summary/`)**: Real-time aggregated metric cards, charts, and activity feeds for each role:
-  - **Shipper Dashboard (`ShipperDashboard.jsx`)**: Active loads, in-transit cargo, pending bids, completed shipments, monthly throughput bar charts, freight status distribution.
-  - **Transporter Dashboard (`TransporterDashboard.jsx`)**: Available freight listings, active shipments, fleet vehicle count, confirmed payout earnings (ETB), on-time delivery rate, revenue trend charts.
-  - **Driver Dashboard (`DriverDashboard.jsx`)**: Assigned route, completed trips, active corridor safety alerts, live GPS location status (15s interval).
-  - **Freight Forwarder Dashboard (`FreightForwarderDashboard.jsx`)**: Managed freight throughput, customs clearance pipeline, corridor movement speed.
-  - **Customs Staff Dashboard (`CustomsStaffDashboard.jsx`)**: Pending declaration review queue, approved/rejected customs document statistics, total intake.
-  - **Admin Dashboard (`AdminDashboard.jsx`)**: Platform user growth, pending verification queue, global active shipments, financial dispute logs.
-- **JWT Authentication & Profile Engine**: Secure login, registration, token refresh queue, token blacklisting logout, profile updates (`PATCH /api/v1/auth/me/`), and password updates (`POST /api/v1/auth/password/change/`).
+## Frontend Web Application & Marketplace (`frontend/`)
+- **Marketplace & Load Management (`/loads`, `/marketplace`)**:
+  - **Freight Discovery (`LoadsPage.jsx`)**: Search, filter by origin/destination, cargo type, and status (`DRAFT`, `POSTED`, `BOOKED`, `CANCELLED`). Tabs for Available Marketplace Freight vs My Posted Loads.
+  - **Load Creation (`CreateLoadPage.jsx`)**: Form with React Hook Form + Zod validation submitting to `POST /api/v1/loads/`.
+  - **Load Details & Lifecycle (`LoadDetailsPage.jsx`)**: Displays complete cargo specifications, route info, shipper identity, publish action (`POST /api/v1/loads/{id}/post/`), and cancel action (`POST /api/v1/loads/{id}/cancel/`).
+  - **Load Editing (`EditLoadPage.jsx`)**: Modifies draft or posted load details via `PATCH /api/v1/loads/{id}/`.
+- **Role-Aware Dashboard & Metrics Engine (`GET /api/v1/dashboard/summary/`)**: Real-time aggregated metrics for Shippers, Transporters, Drivers, Freight Forwarders, Customs Staff, and Admins.
+- **JWT Authentication & Profile Engine**: Secure authentication, profile management, and password updates.
 
 ---
 
@@ -70,6 +69,12 @@ pipenv run pytest
 pipenv run python manage.py runserver
 ```
 
-### Health Check & Dashboard Summary Endpoints
-- `GET /api/v1/health/` — Verifies Django, PostgreSQL, PostGIS, and Redis connection status.
-- `GET /api/v1/dashboard/summary/` — Returns role-specific aggregated metric cards, charts, and activity feeds.
+### Key API Endpoints
+- `GET /api/v1/health/` — System health check.
+- `GET /api/v1/dashboard/summary/` — Role-aware dashboard metrics.
+- `GET /api/v1/loads/` — Load list & marketplace search (`origin_city`, `destination_city`, `cargo_type`, `status`, `my_loads`).
+- `POST /api/v1/loads/` — Post a new load.
+- `GET /api/v1/loads/{id}/` — Retrieve load details.
+- `PATCH /api/v1/loads/{id}/` — Update load specs.
+- `POST /api/v1/loads/{id}/post/` — Transition status to `POSTED`.
+- `POST /api/v1/loads/{id}/cancel/` — Transition status to `CANCELLED`.
