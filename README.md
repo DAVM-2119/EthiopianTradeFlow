@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–18)
+## Domain Architecture (Phases 3–19)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -144,6 +144,21 @@
 - **`GET /api/v1/drivers/<uuid:driver_id>/fuel-metrics/`**: Driver fuel efficiency metrics summary & breakdown.
 - **`GET /api/v1/analytics/fuel/trends/`**: Aggregated monthly/weekly fuel trends.
 - **`GET /api/v1/analytics/fuel/recommendations/`**: Rule-based fuel-saving recommendations.
+
+### Risk Zones & Security Alerts Engine (`apps.risk`)
+- **`RiskZone`**: Geographic conflict and threat zone entity (`name`, `description`, `location` PostGIS `PointField`, `polygon` PostGIS `PolygonField`, `latitude`, `longitude`, `radius_km`, `severity`: `LOW`/`MEDIUM`/`HIGH`/`CRITICAL`, `source`: `GOVERNMENT_ADVISORY`/`VERIFIED_CROWDSOURCE`/`ADMIN`, `is_active`, `effective_from`, `effective_until`).
+- **`IncidentReport`**: Crowd-sourced or driver-reported incident report (`reported_by`, `shipment`, `driver`, `incident_type`: `ACCIDENT`/`CHECKPOINT_DELAY`/`FUEL_UNAVAILABLE`/`ROAD_PROBLEM`/`SECURITY_INCIDENT`, `description`, `location` PostGIS `PointField`, `latitude`, `longitude`, `reported_at`, `severity`, `status`: `REPORTED`/`UNDER_REVIEW`/`VERIFIED`/`RESOLVED`/`DISMISSED`, `verification_notes`, `verified_by`).
+- **`SecurityAlert`**: Auditable notification-ready security alert (`shipment`, `driver`, `risk_zone`, `incident`, `alert_type`: `APPROACHING_RISK_ZONE`/`INCIDENT_IN_PROXIMITY`/`ROUTE_DEVIATION_RISK`, `severity`, `distance_at_detection_km`, `message`, `suggested_action`, `suggested_alternate_route_id`, `status`: `ACTIVE`/`ACKNOWLEDGED`/`RESOLVED`/`DISMISSED`).
+- **Geographic Risk Detection & Duplicate Prevention**: `check_location_for_risk()` computes Haversine distances to active risk zones and verified incidents. Suppresses duplicate active alerts for the same shipment and risk zone. Connects to Phase 16 routing boundary for alternate route recommendations.
+- **`POST /api/v1/risk-zones/`**: Create risk zone (Admin / Customs Staff).
+- **`GET /api/v1/risk-zones/`**: List active and effective risk zones.
+- **`GET/PATCH/DELETE /api/v1/risk-zones/<uuid:zone_id>/`**: Retrieve, update, or deactivate risk zone.
+- **`POST /api/v1/incidents/`**: Report new road/security incident.
+- **`GET /api/v1/incidents/`**: List active or shipment-specific incidents.
+- **`POST /api/v1/incidents/<uuid:incident_id>/verify/`**: Verify or update incident status (Admin).
+- **`GET /api/v1/security-alerts/`**: List security alerts (Shipment participant filtered).
+- **`POST /api/v1/security-alerts/<uuid:alert_id>/acknowledge/`**: Acknowledge security alert.
+- **`POST /api/v1/risk/check-location/`**: Real-time driver/shipment spatial risk check.
 
 ---
 

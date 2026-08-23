@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'apps.routing',
     'apps.customs',
     'apps.analytics',
+    'apps.risk',
     'channels',
 ]
 
