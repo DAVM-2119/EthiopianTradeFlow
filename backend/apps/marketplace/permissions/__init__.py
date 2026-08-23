@@ -1,3 +1,3 @@
-from .marketplace_permissions import IsLoadOwner
+from .marketplace_permissions import IsLoadOwner, IsBidOwner
 
-__all__ = ['IsLoadOwner']
+__all__ = ['IsLoadOwner', 'IsBidOwner']

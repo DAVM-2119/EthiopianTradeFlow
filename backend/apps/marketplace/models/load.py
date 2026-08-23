@@ -8,6 +8,7 @@ from apps.core.models import BaseModel
 class LoadStatusChoices(models.TextChoices):
     DRAFT = 'DRAFT', 'Draft'
     POSTED = 'POSTED', 'Posted'
+    BOOKED = 'BOOKED', 'Booked'
     CANCELLED = 'CANCELLED', 'Cancelled'
 
 
