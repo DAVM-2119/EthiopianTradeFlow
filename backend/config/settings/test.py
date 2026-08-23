@@ -1,0 +1,12 @@
+from .base import *
+
+DEBUG = False
+
+# Tests run against PostgreSQL + PostGIS test database natively
+DATABASES['default']['TEST'] = {
+    'NAME': env('TEST_DATABASE_NAME', default='tradeflow_test_db'),
+}
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+]
