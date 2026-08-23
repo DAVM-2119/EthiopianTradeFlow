@@ -14,10 +14,14 @@ redis = "*"
 celery = "*"
 drf-spectacular = "*"
 djangorestframework-simplejwt = "*"
+channels = "*"
+channels-redis = "*"
+daphne = "*"
 
 [dev-packages]
 pytest = "*"
 pytest-django = "*"
+pytest-asyncio = "*"
 
 [requires]
 python_version = "3.13"

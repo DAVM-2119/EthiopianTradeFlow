@@ -76,4 +76,8 @@ def record_tracking_event(*, shipment_id, driver_user, latitude, longitude, spee
         recorded_at=recorded_at
     )
 
+    from django.db import transaction
+    from apps.tracking.services.tracking_publisher import publish_tracking_event
+    transaction.on_commit(lambda: publish_tracking_event(tracking_event))
+
     return tracking_event

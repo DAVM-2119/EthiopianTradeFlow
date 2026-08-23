@@ -60,7 +60,10 @@ INSTALLED_APPS = [
     'apps.matching',
     'apps.shipments',
     'apps.tracking',
+    'channels',
 ]
+
+ASGI_APPLICATION = 'config.asgi.application'
 
 DEFAULT_MATCH_SHORTLIST_SIZE = 10
 
@@ -175,4 +178,13 @@ CACHES = {
             'protocol': 2,
         }
     }
+}
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [REDIS_URL],
+        },
+    },
 }
