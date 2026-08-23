@@ -78,6 +78,8 @@ def record_tracking_event(*, shipment_id, driver_user, latitude, longitude, spee
 
     from django.db import transaction
     from apps.tracking.services.tracking_publisher import publish_tracking_event
+    from apps.eta.services import calculate_and_save_eta
     transaction.on_commit(lambda: publish_tracking_event(tracking_event))
+    transaction.on_commit(lambda: calculate_and_save_eta(shipment_id=shipment.id))
 
     return tracking_event
