@@ -1,13 +1,13 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LoadingSpinner } from '../components/common/LoadingSpinner';
+import { AuthLoadingState } from '../components/auth/AuthLoadingState';
 
 export const ProtectedRoute = () => {
   const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return <LoadingSpinner label="Authenticating session..." />;
+    return <AuthLoadingState />;
   }
 
   if (!isAuthenticated) {

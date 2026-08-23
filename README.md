@@ -23,10 +23,9 @@
 ---
 
 ## Frontend Web Application (`frontend/`)
-- **Role-Aware Navigation System**: Centralized configuration (`src/config/navigation.js`) providing tailored sidebar views for `SHIPPER`, `TRANSPORTER`, `DRIVER`, `FREIGHT_FORWARDER`, `CUSTOMS_STAFF`, and `ADMIN`.
-- **Responsive Layout & Sidebar**: Desktop collapsible sidebar (`w-64` / `w-16`) and mobile drawer overlay with smooth transitions (`Sidebar.jsx`).
-- **Navbar & Breadcrumbs**: Real-time location breadcrumb trail (`Breadcrumbs.jsx`), live online/offline network connection monitoring (`Navbar.jsx`), and user profile dropdown (`UserMenu.jsx`).
-- **Application State Engine**: Reusable data states (`EmptyState.jsx`) and offline corridor cache mode notifications (`OfflineState.jsx`).
+- **JWT Authentication Engine**: Login (`/api/v1/auth/login/`), registration (`/api/v1/auth/register/`), transparent 401 token refresh queue, token blacklisting logout (`/api/v1/auth/logout/`), and session initial loading (`AuthLoadingState.jsx`).
+- **Profile & Identity Management**: View account identity (`ProfilePage.jsx`), edit user details (`EditProfilePage.jsx` via `PATCH /api/v1/auth/me/`), and update passwords (`ChangePasswordPage.jsx` via `POST /api/v1/auth/password/change/`).
+- **Role-Aware Authorization**: Centralized navigation and route guards (`ProtectedRoute.jsx`, `RoleRoute.jsx`, `navigation.js`) filtering navigation by user role (`SHIPPER`, `TRANSPORTER`, `DRIVER`, `FREIGHT_FORWARDER`, `CUSTOMS_STAFF`, `ADMIN`).
 
 ---
 

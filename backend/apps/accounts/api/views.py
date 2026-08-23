@@ -10,6 +10,7 @@ from apps.accounts.serializers import (
     UserLoginSerializer,
     LogoutSerializer,
     UserSerializer,
+    UserUpdateSerializer,
     PasswordChangeSerializer,
     PasswordResetRequestSerializer,
     PasswordResetConfirmSerializer,
@@ -95,6 +96,13 @@ class MeView(APIView):
     @extend_schema(responses={200: UserSerializer})
     def get(self, request, *args, **kwargs):
         return success_response(data=UserSerializer(request.user).data)
+
+    @extend_schema(request=UserUpdateSerializer, responses={200: UserSerializer})
+    def patch(self, request, *args, **kwargs):
+        serializer = UserUpdateSerializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return success_response(data=UserSerializer(request.user).data, message="User identity updated successfully.")
 
 
 class PasswordChangeView(APIView):

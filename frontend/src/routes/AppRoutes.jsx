@@ -7,6 +7,9 @@ import { DashboardLayout } from '../layouts/DashboardLayout';
 import { LoginPage } from '../pages/auth/LoginPage';
 import { RegisterPage } from '../pages/auth/RegisterPage';
 import { DashboardPage } from '../pages/dashboard/DashboardPage';
+import { ProfilePage } from '../pages/profile/ProfilePage';
+import { EditProfilePage } from '../pages/profile/EditProfilePage';
+import { ChangePasswordPage } from '../pages/profile/ChangePasswordPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 
 export const AppRoutes = () => {
@@ -22,6 +25,12 @@ export const AppRoutes = () => {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
 
+          {/* User Profile Sub-routes */}
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile/edit" element={<EditProfilePage />} />
+          <Route path="/profile/change-password" element={<ChangePasswordPage />} />
+
+          {/* Future Sub-phase Domain Shell Placeholders */}
           <Route path="/loads" element={<DashboardPage />} />
           <Route path="/bids" element={<DashboardPage />} />
           <Route path="/shipments" element={<DashboardPage />} />
@@ -33,7 +42,6 @@ export const AppRoutes = () => {
           <Route path="/risk" element={<DashboardPage />} />
           <Route path="/analytics" element={<DashboardPage />} />
           <Route path="/notifications" element={<DashboardPage />} />
-          <Route path="/profile" element={<DashboardPage />} />
 
           <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
             <Route path="/admin/*" element={<DashboardPage />} />
