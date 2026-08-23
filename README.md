@@ -11,17 +11,17 @@
 ## Architecture Stack
 - **Backend Framework**: Python 3.13 / Django / Django REST Framework
 - **Authentication**: JWT (`djangorestframework-simplejwt`) with Token Blacklisting
+- **Real-Time WebSockets**: Django Channels (`channels`, `channels-redis`, `daphne`)
 - **Database**: PostgreSQL with PostGIS extension (GeoDjango spatial engine)
 - **Caching & Broker**: Redis
 - **Task Queue**: Celery & Celery Beat
-- **Real-Time Communication**: Django Channels (WebSockets)
 - **API Documentation**: drf-spectacular (OpenAPI 3.0)
 - **Filtering & Search**: `django-filter`
-- **Test Framework**: Pytest (`pytest-django`)
+- **Test Framework**: Pytest (`pytest-django`, `pytest-asyncio`)
 
 ---
 
-## Domain Architecture (Phases 3–11)
+## Domain Architecture (Phases 3–12)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -78,11 +78,12 @@
 - **`POST/GET /api/v1/shipments/<uuid:id>/proof-of-delivery/`**: Record or view proof of delivery.
 - **`POST /api/v1/shipments/<uuid:id>/complete/`**: Complete shipment (Requires DELIVERED status + Proof of Delivery).
 
-### GPS Tracking Foundation (`apps.tracking`)
+### Real-Time GPS Tracking & WebSockets (`apps.tracking`)
 - **`TrackingEvent`**: Spatial GPS position update entity (`event_id` unique key, `shipment`, `driver`, `location` PostGIS `PointField` SRID 4326, `latitude`, `longitude`, `speed`, `heading`, `recorded_at`, `received_at`).
-- **`POST /api/v1/tracking/events/`**: Ingest GPS position update from device/driver. Enforces assigned driver verification, trackable shipment status checks, coordinate boundaries, and duplicate event prevention.
+- **`POST /api/v1/tracking/events/`**: Ingest GPS position update from device/driver. Enforces assigned driver verification, trackable shipment status checks, coordinate boundaries, duplicate event prevention, and broadcasts position update upon `transaction.on_commit`.
 - **`GET /api/v1/shipments/<uuid:shipment_id>/tracking/`**: Retrieve historical GPS position updates list for a shipment.
 - **`GET /api/v1/shipments/<uuid:shipment_id>/tracking/latest/`**: Retrieve latest recorded GPS position update for a shipment.
+- **`WS /ws/v1/shipments/<uuid:shipment_id>/tracking/?token=<jwt>`**: Real-time WebSocket connection endpoint. Joins `shipment_<shipment_id>` channel group via Redis channel layer. Authenticates via JWT and enforces object-level participant security (`Shipper`, `Transporter`, `Driver`, `Admin`). Broadcasts `tracking.position_updated` JSON events in real time.
 
 ---
 
@@ -104,7 +105,7 @@ pipenv run python manage.py migrate
 # Run complete pytest suite against PostgreSQL/PostGIS test database
 pipenv run pytest
 
-# Start development server
+# Start development ASGI server
 pipenv run python manage.py runserver
 ```
 
