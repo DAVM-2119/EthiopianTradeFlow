@@ -12,16 +12,16 @@
 - **Backend Framework**: Python 3.13 / Django / Django REST Framework
 - **Authentication**: JWT (`djangorestframework-simplejwt`) with Token Blacklisting
 - **Real-Time WebSockets**: Django Channels (`channels`, `channels-redis`, `daphne`)
+- **Asynchronous Task Queue**: Celery & Redis (`celery`, `redis`)
 - **Database**: PostgreSQL with PostGIS extension (GeoDjango spatial engine)
 - **Caching & Broker**: Redis
-- **Task Queue**: Celery & Celery Beat
 - **API Documentation**: drf-spectacular (OpenAPI 3.0)
 - **Filtering & Search**: `django-filter`
 - **Test Framework**: Pytest (`pytest-django`, `pytest-asyncio`)
 
 ---
 
-## Domain Architecture (Phases 3–21)
+## Domain Architecture (Phases 3–22)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -187,6 +187,18 @@
 - **`POST /api/v1/payments/disputes/`**: Raise payment dispute.
 - **`GET /api/v1/payments/disputes/`**: List disputes.
 - **`POST /api/v1/payments/disputes/<uuid:id>/resolve/`**: Resolve payment dispute (Admin).
+
+### Notifications Engine (`apps.notifications`)
+- **`Notification`**: Notification entity (`recipient`, `notification_type`: `SHIPMENT_DEPARTED`/`SHIPMENT_CUSTOMS_CLEARED`/`SHIPMENT_ARRIVED`/`SHIPMENT_DELIVERED`/`PAYMENT_COMPLETED`/`PAYMENT_FAILED`/`PAYOUT_PROCESSED`/`SECURITY_ALERT`/`DISPUTE_CREATED`/`DISPUTE_RESOLVED`/`BOOKING_CONFIRMED`/`BOOKING_CANCELLED`/`SYSTEM_ALERT`, `title`, `message`, `channel`: `IN_APP`/`EMAIL`/`SMS`/`PUSH`, `status`: `PENDING`/`PROCESSING`/`SENT`/`FAILED`/`RETRYING`, `priority`, `related_object_type`, `related_object_id`, `data`, `idempotency_key`, `read`, `sent_at`, `read_at`, `failure_reason`, `retry_count`).
+- **`NotificationPreference`**: User channel preference entity (`user`, `notification_type`, `channel`, `enabled`). Enforces `UniqueConstraint(fields=['user', 'notification_type', 'channel'])` (FR-03.3).
+- **Provider Abstraction Architecture**: `BaseNotificationProvider` interface & `BaseEmailProvider`, `BaseSMSProvider`, `BasePushProvider` with `MockEmailProvider`, `MockSMSProvider`, `MockPushProvider` development implementations.
+- **Asynchronous Delivery & Retries**: Celery task `send_notification_task` dispatches delivery tasks asynchronously without blocking HTTP response cycles, executing retries (up to 3 attempts) upon provider failure.
+- **`GET /api/v1/notifications/`**: List user notifications (`?unread_only=true`).
+- **`GET /api/v1/notifications/<uuid:id>/`**: Retrieve notification detail.
+- **`POST /api/v1/notifications/<uuid:id>/read/`**: Mark single notification as read.
+- **`POST /api/v1/notifications/read-all/`**: Mark all unread notifications as read.
+- **`GET /api/v1/notifications/preferences/`**: List user notification preferences.
+- **`PATCH /api/v1/notifications/preferences/update/`**: Update user notification channel preference.
 
 ---
 
