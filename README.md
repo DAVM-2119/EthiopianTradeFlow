@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–14)
+## Domain Architecture (Phases 3–15)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -101,6 +101,15 @@
 - **Predictor Abstraction**: `BaseETAPredictor` interface and `RuleBasedETAPredictor` baseline algorithm calculating remaining geodesic Haversine corridor distance, expected travel speeds, and incident delays. Formatted for future ML model substitution (Phase 25).
 - **`GET /api/v1/shipments/<uuid:shipment_id>/eta/`**: Retrieve latest ETA prediction for a shipment.
 - **`GET /api/v1/shipments/<uuid:shipment_id>/eta/history/`**: Retrieve historical predictions list for a shipment.
+
+### Dynamic Pricing Engine (`apps.pricing`)
+- **`PriceQuote`**: Persisted spot price quote entity (`load`, `shipment`, `base_price`, `demand_multiplier`, `fuel_multiplier`, `congestion_multiplier`, `calculated_price`, `final_price`, `currency`, `pricing_method`: `RULE_BASED`, `algorithm_version`: `pricing-v1`, `valid_from`, `valid_until`, `divergence_warning`, `divergence_notes`).
+- **`ContractRate`**: Locked contract rate agreement for shippers (`shipper`, `transporter`, `origin_city`, `destination_city`, `agreed_rate`, `currency`, `valid_from`, `valid_until`, `is_active`, `divergence_threshold_percent`). Flags spot rate divergence warnings if spot price deviates significantly from agreed contract rate (FR-04.2).
+- **`PricingAudit`**: Input/output JSON snapshot record for complete calculation auditability (FR-04.3).
+- **`GET /api/v1/loads/<uuid:load_id>/pricing/`**: Retrieve current spot price quote.
+- **`POST /api/v1/loads/<uuid:load_id>/pricing/calculate/`**: Recalculate spot price quote.
+- **`GET /api/v1/loads/<uuid:load_id>/pricing/history/`**: Retrieve pricing audit & quote history.
+- **`GET/POST /api/v1/pricing/contracts/`**: List or create locked shipper contract rates.
 
 ---
 
