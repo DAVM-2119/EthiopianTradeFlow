@@ -21,22 +21,19 @@
 
 ---
 
-## Authentication & RBAC (Phase 4)
+## Domain Architecture (Phases 3–5)
 
-Authentication routes live under `/api/v1/auth/`:
-- **`POST /api/v1/auth/register/`**: User registration (email-based, default: `role=SHIPPER`, `status=PENDING`, `is_verified=False`; prevents privilege injection).
-- **`POST /api/v1/auth/login/`**: Issue JWT access (default 30 min) and refresh tokens (default 7 days) and user details (generic error messages on failure).
-- **`POST /api/v1/auth/token/refresh/`**: Refresh JWT access token.
-- **`POST /api/v1/auth/logout/`**: Blacklist refresh token using SimpleJWT blacklist.
-- **`GET /api/v1/auth/me/`**: Get authenticated user profile details.
-- **`POST /api/v1/auth/password/change/`**: Change user password and invalidate refresh tokens.
-- **`POST /api/v1/auth/password/reset/request/`**: Request password reset (generic email lookup).
-- **`POST /api/v1/auth/password/reset/confirm/`**: Confirm password reset using reset token.
+### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
+- **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
+- **Role Profiles**: `ShipperProfile`, `TransporterProfile`, `DriverProfile`, `FreightForwarderProfile`, `CustomsStaffProfile` linked 1-to-1 with `User`.
+- **`GET/PATCH /api/v1/profiles/me/`**: Retrieve and update role-specific business profile.
+- **`GET/POST /api/v1/profiles/transporter/drivers/`**: Transporter driver fleet management.
 
-### Role-Based Access Control (RBAC) Permissions
-Modular permission classes available in `apps.accounts.permissions`:
-- **Role Permissions**: `IsAdmin`, `IsShipper`, `IsTransporter`, `IsDriver`, `IsFreightForwarder`, `IsCustomsStaff`, `HasAnyRole`.
-- **Status Permissions**: `IsActiveAccount`, `IsNotSuspendedAccount`, `IsVerifiedAccount`.
+### Fleet Management (`apps.fleet`)
+- **`Vehicle`**: Transporter fleet vehicle model (`registration_number`, `vehicle_type`, `capacity`, `capacity_unit`, `fuel_type`, `model`, `manufacturer`, `year`, `status`). Enforces database check constraint `capacity > 0`.
+- **`VehicleDocument`**: Vehicle document metadata for insurance, roadworthiness certificate, and registration.
+- **`GET/POST /api/v1/vehicles/`**: Transporter vehicle list & create endpoint.
+- **`GET/PATCH/DELETE /api/v1/vehicles/<uuid:id>/`**: Transporter vehicle detail & deactivation endpoint (protected by `IsVehicleOwner` object-level permission).
 
 ---
 
