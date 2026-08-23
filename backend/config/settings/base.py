@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'apps.profiles',
     'apps.fleet',
     'apps.verification',
+    'apps.marketplace',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
