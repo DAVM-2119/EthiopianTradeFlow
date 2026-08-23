@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–13)
+## Domain Architecture (Phases 3–14)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -80,7 +80,7 @@
 
 ### Real-Time GPS Tracking & WebSockets (`apps.tracking`)
 - **`TrackingEvent`**: Spatial GPS position update entity (`event_id` unique key, `shipment`, `driver`, `location` PostGIS `PointField` SRID 4326, `latitude`, `longitude`, `speed`, `heading`, `recorded_at`, `received_at`).
-- **`POST /api/v1/tracking/events/`**: Ingest GPS position update from device/driver. Enforces assigned driver verification, trackable shipment status checks, coordinate boundaries, duplicate event prevention, and broadcasts position update upon `transaction.on_commit`.
+- **`POST /api/v1/tracking/events/`**: Ingest GPS position update from device/driver. Enforces assigned driver verification, trackable shipment status checks, coordinate boundaries, duplicate event prevention, broadcasts position update upon `transaction.on_commit`, and recalculates ETA.
 - **`GET /api/v1/shipments/<uuid:shipment_id>/tracking/`**: Retrieve historical GPS position updates list for a shipment.
 - **`GET /api/v1/shipments/<uuid:shipment_id>/tracking/latest/`**: Retrieve latest recorded GPS position update for a shipment.
 - **`WS /ws/v1/shipments/<uuid:shipment_id>/tracking/?token=<jwt>`**: Real-time WebSocket connection endpoint. Joins `shipment_<shipment_id>` channel group via Redis channel layer. Authenticates via JWT and enforces object-level participant security (`Shipper`, `Transporter`, `Driver`, `Admin`). Broadcasts `tracking.position_updated` JSON events in real time.
@@ -89,12 +89,18 @@
 - **`OfflineSyncEvent`**: Offline driver action record (`client_event_id` unique UUID key, `user`, `device_id`, `event_type`: `WAYPOINT_CHECKIN`/`INCIDENT_REPORT`/`TRACKING_EVENT`, `entity_type`, `entity_id`, `payload`, `client_created_at`, `client_updated_at`, `server_received_at`, `status`: `PENDING`/`SYNCING`/`SYNCED`/`FAILED`/`CONFLICT`, `attempt_count`, `last_attempt_at`, `synced_at`, `error_code`, `error_message`, `server_entity_id`).
 - **Idempotency**: Guarantees one logical client event = one server-side domain execution. Duplicate submissions return the existing `SYNCED` record without duplicate side-effects.
 - **Conflict Resolution**: Timestamp comparison against server state. Stale/superseded offline events are set to `status="CONFLICT"` with `error_code="STALE_TIMESTAMP"`.
-- **Transaction Safety**: Domain processing occurs in `transaction.atomic()`. Synced tracking events trigger `transaction.on_commit` broadcasting updates to Phase 12 WebSocket clients.
+- **Transaction Safety**: Domain processing occurs in `transaction.atomic()`. Synced tracking events trigger `transaction.on_commit` broadcasting updates to Phase 12 WebSocket clients and recalculating ETA.
 - **`POST /api/v1/sync/events/`**: Submit single queued offline event.
 - **`POST /api/v1/sync/events/batch/`**: Submit batch of queued offline events returning per-event status results.
 - **`GET /api/v1/sync/events/<uuid:client_event_id>/`**: Retrieve offline sync event status by client UUID.
 - **`POST /api/v1/sync/events/<uuid:client_event_id>/retry/`**: Retry a failed offline sync event.
 - **`GET /api/v1/sync/status/`**: Retrieve user sync status summary.
+
+### ETA Prediction Engine (`apps.eta`)
+- **`ETAPrediction`**: Persisted predicted arrival record (`shipment`, `predicted_at`, `estimated_arrival`, `remaining_distance_km`, `expected_speed_kmh`, `delay_minutes`, `prediction_method`: `RULE_BASED`, `algorithm_version`: `eta-v1`, `confidence`: `0.85`).
+- **Predictor Abstraction**: `BaseETAPredictor` interface and `RuleBasedETAPredictor` baseline algorithm calculating remaining geodesic Haversine corridor distance, expected travel speeds, and incident delays. Formatted for future ML model substitution (Phase 25).
+- **`GET /api/v1/shipments/<uuid:shipment_id>/eta/`**: Retrieve latest ETA prediction for a shipment.
+- **`GET /api/v1/shipments/<uuid:shipment_id>/eta/history/`**: Retrieve historical predictions list for a shipment.
 
 ---
 
