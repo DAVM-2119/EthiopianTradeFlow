@@ -57,7 +57,10 @@ INSTALLED_APPS = [
     'apps.fleet',
     'apps.verification',
     'apps.marketplace',
+    'apps.matching',
 ]
+
+DEFAULT_MATCH_SHORTLIST_SIZE = 10
 
 AUTH_USER_MODEL = 'accounts.User'
 
