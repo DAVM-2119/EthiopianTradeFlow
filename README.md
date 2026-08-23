@@ -2,6 +2,12 @@
 
 **TradeFlow** — Intelligent Logistics & Freight Matching Platform for Landlocked Ethiopia (Djibouti Port → Modjo Dry Port → regional hubs).
 
+## Repository
+- **GitHub**: [DAVM-2119/EthiopianTradeFlow](https://github.com/DAVM-2119/EthiopianTradeFlow.git)
+- **Primary Branch**: `main`
+
+---
+
 ## Architecture Stack
 - **Backend Framework**: Python 3.13 / Django / Django REST Framework
 - **Database**: PostgreSQL with PostGIS extension (GeoDjango spatial engine)
@@ -11,6 +17,19 @@
 - **API Documentation**: drf-spectacular (OpenAPI 3.0)
 - **Filtering & Search**: `django-filter`
 - **Test Framework**: Pytest (`pytest-django`)
+
+---
+
+## Identity & Custom User Model (Phase 3)
+
+The custom user model lives in `backend/apps/accounts/`:
+- **`User`**: Custom user model inheriting `AbstractBaseUser`, `PermissionsMixin`, and `BaseModel` (UUIDv4 primary key).
+- **Email Authentication**: `USERNAME_FIELD = "email"`, unique, normalized email addresses (no username field).
+- **Role System**: Centralized `RoleChoices` (`SHIPPER`, `TRANSPORTER`, `DRIVER`, `FREIGHT_FORWARDER`, `CUSTOMS_STAFF`, `ADMIN`).
+- **Account Status**: Independent `StatusChoices` (`ACTIVE`, `INACTIVE`, `SUSPENDED`, `PENDING`).
+- **Verification Flag**: Independent `is_verified` identity verification status.
+- **User Manager**: `UserManager` providing email normalization, secure password hashing (`set_password`), and superuser validation.
+- **Admin**: Custom `UserAdmin` registered in Django admin with search and role/status/verification filters.
 
 ---
 
