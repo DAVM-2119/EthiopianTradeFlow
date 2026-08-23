@@ -63,12 +63,14 @@ INSTALLED_APPS = [
     'apps.synchronization',
     'apps.eta',
     'apps.pricing',
+    'apps.routing',
     'channels',
 ]
 
 ASGI_APPLICATION = 'config.asgi.application'
 
 DEFAULT_MATCH_SHORTLIST_SIZE = 10
+OSRM_BASE_URL = os.getenv('OSRM_BASE_URL', 'http://localhost:5000')
 
 AUTH_USER_MODEL = 'accounts.User'
 

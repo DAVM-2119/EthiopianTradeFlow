@@ -17,6 +17,7 @@ urlpatterns = [
     path('api/v1/', include('apps.tracking.api.urls')),
     path('api/v1/sync/', include('apps.synchronization.api.urls')),
     path('api/v1/', include('apps.pricing.api.urls')),
+    path('api/v1/', include('apps.routing.api.urls')),
     
     # OpenAPI Schema documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
