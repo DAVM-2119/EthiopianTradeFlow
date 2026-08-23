@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–10)
+## Domain Architecture (Phases 3–11)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -77,6 +77,12 @@
 - **`GET /api/v1/shipments/<uuid:id>/events/`**: Retrieve shipment lifecycle audit trail.
 - **`POST/GET /api/v1/shipments/<uuid:id>/proof-of-delivery/`**: Record or view proof of delivery.
 - **`POST /api/v1/shipments/<uuid:id>/complete/`**: Complete shipment (Requires DELIVERED status + Proof of Delivery).
+
+### GPS Tracking Foundation (`apps.tracking`)
+- **`TrackingEvent`**: Spatial GPS position update entity (`event_id` unique key, `shipment`, `driver`, `location` PostGIS `PointField` SRID 4326, `latitude`, `longitude`, `speed`, `heading`, `recorded_at`, `received_at`).
+- **`POST /api/v1/tracking/events/`**: Ingest GPS position update from device/driver. Enforces assigned driver verification, trackable shipment status checks, coordinate boundaries, and duplicate event prevention.
+- **`GET /api/v1/shipments/<uuid:shipment_id>/tracking/`**: Retrieve historical GPS position updates list for a shipment.
+- **`GET /api/v1/shipments/<uuid:shipment_id>/tracking/latest/`**: Retrieve latest recorded GPS position update for a shipment.
 
 ---
 
