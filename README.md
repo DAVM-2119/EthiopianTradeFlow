@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–9)
+## Domain Architecture (Phases 3–10)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -55,7 +55,7 @@
 - **`POST/GET /api/v1/loads/<uuid:load_id>/bids/`**: Verified transporter place bid / Load owner list bids.
 - **`GET/PATCH /api/v1/bids/<uuid:id>/`**: Retrieve or update active bid.
 - **`POST /api/v1/bids/<uuid:id>/withdraw/`**: Withdraw active bid (`ACTIVE` → `WITHDRAWN`).
-- **`POST /api/v1/bids/<uuid:id>/accept/`**: Accept bid & book load (`ACTIVE` → `ACCEPTED`, `Load` → `BOOKED`, competing active bids → `REJECTED`). Uses `transaction.atomic()` with `select_for_update()` row locking.
+- **`POST /api/v1/bids/<uuid:id>/accept/`**: Accept bid & book load (`ACTIVE` → `ACCEPTED`, `Load` → `BOOKED`, competing active bids → `REJECTED`, automatic `Shipment` creation in `BOOKED` state). Uses `transaction.atomic()` with `select_for_update()` row locking.
 - **`GET /api/v1/my-bids/`**: List bids placed by authenticated transporter.
 
 ### Freight Matching Engine (`apps.matching`)
@@ -64,6 +64,19 @@
 - **`POST /api/v1/loads/<uuid:load_id>/matches/`**: Generate or regenerate ranked recommendations shortlist for a posted load.
 - **`GET /api/v1/loads/<uuid:load_id>/matches/`**: Retrieve active recommendation shortlist (Load owner / Admin).
 - **`GET /api/v1/matches/<uuid:id>/`**: Retrieve recommendation detail with score breakdown (Load owner / Transporter / Admin).
+
+### Shipment Lifecycle (`apps.shipments`)
+- **`Shipment`**: Shipment entity created upon bid acceptance (`load`, `bid`, `shipper`, `transporter`, `vehicle`, `driver`, `status`: `BOOKED`/`ASSIGNED`/`PICKUP_READY`/`IN_TRANSIT`/`CUSTOMS_PROCESSING`/`CUSTOMS_CLEARED`/`DELIVERED`/`COMPLETED`/`CANCELLED`/`FAILED`/`DISPUTED`, operational timestamps).
+- **`ShipmentEvent`**: Append-only lifecycle event audit log (`shipment`, `event_type`, `previous_status`, `new_status`, `description`, `created_by`).
+- **`ProofOfDelivery`**: Delivery confirmation record (`shipment`, `receiver_name`, `delivery_timestamp`, `signature_reference`, `photo_reference`, `notes`, `submitted_by`).
+- **`GET /api/v1/shipments/`**: List role-filtered shipments (Shipper, Transporter, Driver, Admin).
+- **`GET /api/v1/shipments/<uuid:id>/`**: Retrieve shipment detail.
+- **`POST /api/v1/shipments/<uuid:id>/assign/`**: Assign fleet vehicle and driver.
+- **`POST /api/v1/shipments/<uuid:id>/transition/`**: Execute controlled lifecycle state transition.
+- **`POST /api/v1/shipments/<uuid:id>/cancel/`**: Cancel pre-delivery shipment.
+- **`GET /api/v1/shipments/<uuid:id>/events/`**: Retrieve shipment lifecycle audit trail.
+- **`POST/GET /api/v1/shipments/<uuid:id>/proof-of-delivery/`**: Record or view proof of delivery.
+- **`POST /api/v1/shipments/<uuid:id>/complete/`**: Complete shipment (Requires DELIVERED status + Proof of Delivery).
 
 ---
 
