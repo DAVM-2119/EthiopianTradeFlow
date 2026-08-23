@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–20)
+## Domain Architecture (Phases 3–21)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -166,6 +166,27 @@
 - **`GET /api/v1/security-alerts/`**: List security alerts (Shipment participant filtered).
 - **`POST /api/v1/security-alerts/<uuid:alert_id>/acknowledge/`**: Acknowledge security alert.
 - **`POST /api/v1/risk/check-location/`**: Real-time driver/shipment spatial risk check.
+
+### Payments & Financial Settlement Subsystem (`apps.payments`)
+- **`Payment`**: Core customer payment entity (`shipment`, `payer`, `amount`, `currency`, `status`: `PENDING`/`INITIATED`/`PROCESSING`/`COMPLETED`/`FAILED`/`CANCELLED`/`REFUNDED`, `payment_method`, `provider`, `provider_transaction_id`, `idempotency_key`, timestamps). State machine enforced via `transition_to()`. Idempotency guaranteed via `Idempotency-Key` header / unique client key (FR-10.1).
+- **`PaymentTransaction`**: Audit log record storing raw provider request/response metadata.
+- **`Commission`**: Persisted platform commission calculation (e.g. 5.00% gross amount) (FR-10.2).
+- **`Payout`**: Transporter payout entity (`transporter`, `payment`, `gross_amount`, `commission_amount`, `net_amount`, `status`: `PENDING`/`SCHEDULED`/`PROCESSING`/`COMPLETED`/`FAILED`/`CANCELLED`, `scheduled_at`, `processed_at`).
+- **`Settlement`**: Master financial reconciliation record (`shipment`, `payment`, `commission`, `payout`, `gross_amount`, `commission_amount`, `net_transporter_amount`, `status`: `PENDING`/`RECONCILED`/`COMPLETED`/`DISPUTED`).
+- **`PaymentDispute`**: Discrepancy report (`payment`, `raised_by`, `reason`: `AMOUNT_MISMATCH`/`PAYMENT_NOT_RECEIVED`/`DUPLICATE_PAYMENT`/`PAYOUT_NOT_RECEIVED`/`PROVIDER_ERROR`/`OTHER`, `description`, `disputed_amount`, `status`: `OPEN`/`UNDER_REVIEW`/`RESOLVED`/`REJECTED`/`CANCELLED`, `resolution_notes`, `resolved_by`, `resolved_at`) (FR-10.3).
+- **Abstract Payment Provider Architecture**: `BasePaymentProvider` interface & `MockPaymentProvider` implementation simulating payment initiation, verification, webhook parsing, and payout processing for future TeleBirr / mobile money integration.
+- **`POST /api/v1/payments/`**: Create payment (Idempotent).
+- **`GET /api/v1/payments/`**: List role-filtered payments.
+- **`GET /api/v1/payments/<uuid:id>/`**: Retrieve payment detail.
+- **`POST /api/v1/payments/<uuid:id>/initiate/`**: Initiate payment with provider gateway.
+- **`POST /api/v1/payments/<uuid:id>/confirm/`**: Confirm payment and trigger atomic financial reconciliation pipeline: Commission $\rightarrow$ Payout $\rightarrow$ Settlement.
+- **`POST /api/v1/payments/webhooks/provider/`**: Provider webhook ingestion endpoint (Idempotent).
+- **`GET /api/v1/payments/payouts/`**: List transporter payouts.
+- **`POST /api/v1/payments/payouts/<uuid:id>/process/`**: Process transporter payout (Admin).
+- **`GET /api/v1/payments/settlements/`**: List settlements.
+- **`POST /api/v1/payments/disputes/`**: Raise payment dispute.
+- **`GET /api/v1/payments/disputes/`**: List disputes.
+- **`POST /api/v1/payments/disputes/<uuid:id>/resolve/`**: Resolve payment dispute (Admin).
 
 ---
 

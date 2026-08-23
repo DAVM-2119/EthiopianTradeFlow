@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'apps.customs',
     'apps.analytics',
     'apps.risk',
+    'apps.payments',
     'channels',
 ]
 
