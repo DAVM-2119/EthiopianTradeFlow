@@ -122,4 +122,12 @@ def accept_bid(*, bid_id, load_owner_user):
 
         Bid.objects.filter(load=load, status=BidStatusChoices.ACTIVE).exclude(id=bid.id).update(status=BidStatusChoices.REJECTED)
 
+        from apps.shipments.services import create_shipment_from_accepted_bid
+        create_shipment_from_accepted_bid(
+            load=load,
+            bid=bid,
+            shipper=load.shipper,
+            transporter=bid.transporter
+        )
+
     return bid
