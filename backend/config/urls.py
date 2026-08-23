@@ -6,6 +6,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('apps.core.urls')),
     path('api/v1/auth/', include('apps.accounts.api.urls')),
+    path('api/v1/profiles/', include('apps.profiles.api.urls')),
+    path('api/v1/vehicles/', include('apps.fleet.api.urls')),
     
     # OpenAPI Schema documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),

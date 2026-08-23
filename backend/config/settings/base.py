@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     # Local apps
     'apps.core',
     'apps.accounts',
+    'apps.profiles',
+    'apps.fleet',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
