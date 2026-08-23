@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'apps.marketplace',
     'apps.matching',
     'apps.shipments',
+    'apps.tracking',
 ]
 
 DEFAULT_MATCH_SHORTLIST_SIZE = 10

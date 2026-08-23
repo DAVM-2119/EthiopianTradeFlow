@@ -12,6 +12,8 @@ urlpatterns = [
     path('api/v1/loads/', include('apps.marketplace.api.urls')),
     path('api/v1/', include('apps.matching.api.urls')),
     path('api/v1/shipments/', include('apps.shipments.api.urls')),
+    path('api/v1/tracking/', include('apps.tracking.api.urls')),
+    path('api/v1/', include('apps.tracking.api.urls')),
     
     # OpenAPI Schema documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
