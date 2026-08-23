@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–15)
+## Domain Architecture (Phases 3–16)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -110,6 +110,16 @@
 - **`POST /api/v1/loads/<uuid:load_id>/pricing/calculate/`**: Recalculate spot price quote.
 - **`GET /api/v1/loads/<uuid:load_id>/pricing/history/`**: Retrieve pricing audit & quote history.
 - **`GET/POST /api/v1/pricing/contracts/`**: List or create locked shipper contract rates.
+
+### Route Optimization & Routing Engine (`apps.routing`)
+- **`Route`**: Candidate and active route entity (`shipment`, `provider`: `OSRM`/`GeodesicCorridor`, `provider_route_id`, `origin_city`, `destination_city`, `distance_km`, `duration_minutes`, `estimated_fuel_liters`, `estimated_fuel_cost`, `risk_score`, `optimization_score`, `status`: `ROUTE_ACTIVE`/`REROUTE_PROPOSED`/`REROUTE_ACCEPTED`/`REROUTE_REJECTED`/`INACTIVE`, `is_recommended`, `geometry_json`).
+- **`RouteLeg`**: Sequenced route waypoint component (`route`, `sequence`, `start_point`, `end_point`, `distance_km`, `duration_minutes`, `estimated_fuel_liters`, `road_condition`, `security_risk_score`).
+- **Pluggable Architecture**: `BaseRoutingProvider` & `OSRMRoutingProvider` querying `OSRM_BASE_URL` (environment configurable, with geodesic fallback); `BaseRouteOptimizer` & `WeightedRouteOptimizer` computing normalized multi-attribute cost scores (Distance 0.25, Time 0.25, Fuel 0.30, Risk 0.20; lower score = superior route).
+- **Rerouting Workflow**: Proposes alternative routes in `REROUTE_PROPOSED` status without altering active routes until driver/dispatcher explicitly confirms (`confirm_reroute(accept=True)`).
+- **`POST /api/v1/shipments/<uuid:shipment_id>/routes/calculate/`**: Calculate candidate routes and select best route.
+- **`GET /api/v1/shipments/<uuid:shipment_id>/routes/`**: List candidate and active routes for a shipment.
+- **`GET /api/v1/routes/<uuid:route_id>/`**: Retrieve route detail and legs.
+- **`POST /api/v1/routes/<uuid:route_id>/reroute/`**: Propose or confirm/reject route modification.
 
 ---
 
