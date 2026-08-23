@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–6)
+## Domain Architecture (Phases 3–7)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -38,12 +38,17 @@
 ### Marketplace Onboarding & Verification (`apps.verification`)
 - **`Verification`**: User onboarding state model (`PENDING`, `VERIFIED`, `SUSPENDED`, `REJECTED`).
 - **`VerificationHistory`**: Append-only audit trail capturing previous status, new status, acting administrator, timestamp, and required reasons.
-- **Eligibility Engine**: `is_vehicle_verification_eligible(vehicle)` and `is_marketplace_eligible(user)` validating document presence/expiry and verification state.
 - **`GET /api/v1/verification/me/`**: Retrieve current user verification state.
 - **`POST /api/v1/verification/me/submit/`**: Self-service user verification submission.
 - **`GET /api/v1/admin/verifications/`**: Admin pending verification queue.
 - **`POST /api/v1/admin/verifications/<uuid:id>/approve/`**: Admin verification approval.
-- **`POST /api/v1/admin/verifications/<uuid:id>/suspend/`**: Admin verification suspension.
+
+### Load Management & Search Engine (`apps.marketplace`)
+- **`Load`**: Freight load entity (`shipper`, `title`, `origin_city`, `destination_city`, `cargo_type`, `weight`, `volume`, `pickup_window_start`, `pickup_window_end`, `delivery_window_start`, `delivery_window_end`, `status`: `DRAFT`/`POSTED`/`CANCELLED`). Enforces `weight > 0` and `volume > 0` check constraints.
+- **`GET/POST /api/v1/loads/`**: List/search posted loads with multi-field filtering (`origin_city`, `destination_city`, `cargo_type`, `weight`, `pickup_window_start`) or create new load (Shipper).
+- **`GET/PATCH /api/v1/loads/<uuid:id>/`**: Retrieve or update load (Owner restricted).
+- **`POST /api/v1/loads/<uuid:id>/post/`**: Transition load state `DRAFT` → `POSTED`.
+- **`POST /api/v1/loads/<uuid:id>/cancel/`**: Transition load state → `CANCELLED`.
 
 ---
 
