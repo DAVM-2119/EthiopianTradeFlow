@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'apps.matching',
     'apps.shipments',
     'apps.tracking',
+    'apps.synchronization',
     'channels',
 ]
 

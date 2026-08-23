@@ -5,6 +5,8 @@ from .shipment_service import (
     cancel_shipment,
     record_proof_of_delivery,
     complete_shipment,
+    record_waypoint_checkin,
+    record_incident_report,
 )
 
 __all__ = [
@@ -14,4 +16,6 @@ __all__ = [
     'cancel_shipment',
     'record_proof_of_delivery',
     'complete_shipment',
+    'record_waypoint_checkin',
+    'record_incident_report',
 ]

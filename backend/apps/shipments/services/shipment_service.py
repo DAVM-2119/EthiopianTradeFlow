@@ -180,3 +180,95 @@ def complete_shipment(*, shipment, actor):
         actor=actor,
         description="Shipment completed upon verified proof of delivery."
     )
+
+
+def record_waypoint_checkin(*, shipment_id, user, latitude=None, longitude=None, recorded_at=None, notes=''):
+    """
+    Records a waypoint check-in for a shipment.
+    Optionally ingests GPS location into TrackingEvent if coordinates are provided.
+    """
+    shipment = Shipment.objects.filter(id=shipment_id).first()
+    if not shipment:
+        raise NotFoundException("Shipment not found.")
+
+    is_participant = (
+        shipment.driver == user or
+        shipment.transporter == user or
+        shipment.shipper == user or
+        user.is_staff or
+        getattr(user, 'role', '') == 'ADMIN'
+    )
+    if not is_participant:
+        raise PermissionDeniedException("You are not authorized to check in for this shipment.")
+
+    evt_desc = f"Waypoint check-in recorded."
+    if latitude is not None and longitude is not None:
+        evt_desc += f" Location: ({latitude}, {longitude})."
+    if notes:
+        evt_desc += f" Notes: {notes}"
+
+    shipment_event = ShipmentEvent.objects.create(
+        shipment=shipment,
+        event_type='WAYPOINT_CHECKIN',
+        previous_status=shipment.status,
+        new_status=shipment.status,
+        description=evt_desc,
+        created_by=user
+    )
+
+    if latitude is not None and longitude is not None and recorded_at is not None:
+        from apps.tracking.services import record_tracking_event
+        record_tracking_event(
+            shipment_id=shipment_id,
+            driver_user=user,
+            latitude=latitude,
+            longitude=longitude,
+            recorded_at=recorded_at
+        )
+
+    return shipment_event
+
+
+def record_incident_report(*, shipment_id, user, incident_type='GENERAL', description='', recorded_at=None, latitude=None, longitude=None):
+    """
+    Records an incident report (breakdown, delay, accident, road blockage) for a shipment.
+    Optionally ingests GPS location into TrackingEvent if coordinates are provided.
+    """
+    shipment = Shipment.objects.filter(id=shipment_id).first()
+    if not shipment:
+        raise NotFoundException("Shipment not found.")
+
+    is_participant = (
+        shipment.driver == user or
+        shipment.transporter == user or
+        shipment.shipper == user or
+        user.is_staff or
+        getattr(user, 'role', '') == 'ADMIN'
+    )
+    if not is_participant:
+        raise PermissionDeniedException("You are not authorized to report incidents for this shipment.")
+
+    evt_desc = f"Incident Report [{incident_type}]: {description}"
+    if latitude is not None and longitude is not None:
+        evt_desc += f" Location: ({latitude}, {longitude})."
+
+    shipment_event = ShipmentEvent.objects.create(
+        shipment=shipment,
+        event_type='INCIDENT_REPORT',
+        previous_status=shipment.status,
+        new_status=shipment.status,
+        description=evt_desc,
+        created_by=user
+    )
+
+    if latitude is not None and longitude is not None and recorded_at is not None:
+        from apps.tracking.services import record_tracking_event
+        record_tracking_event(
+            shipment_id=shipment_id,
+            driver_user=user,
+            latitude=latitude,
+            longitude=longitude,
+            recorded_at=recorded_at
+        )
+
+    return shipment_event
