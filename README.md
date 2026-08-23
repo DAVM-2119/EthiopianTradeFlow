@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–7)
+## Domain Architecture (Phases 3–8)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -44,11 +44,19 @@
 - **`POST /api/v1/admin/verifications/<uuid:id>/approve/`**: Admin verification approval.
 
 ### Load Management & Search Engine (`apps.marketplace`)
-- **`Load`**: Freight load entity (`shipper`, `title`, `origin_city`, `destination_city`, `cargo_type`, `weight`, `volume`, `pickup_window_start`, `pickup_window_end`, `delivery_window_start`, `delivery_window_end`, `status`: `DRAFT`/`POSTED`/`CANCELLED`). Enforces `weight > 0` and `volume > 0` check constraints.
-- **`GET/POST /api/v1/loads/`**: List/search posted loads with multi-field filtering (`origin_city`, `destination_city`, `cargo_type`, `weight`, `pickup_window_start`) or create new load (Shipper).
+- **`Load`**: Freight load entity (`shipper`, `title`, `origin_city`, `destination_city`, `cargo_type`, `weight`, `volume`, `pickup_window_start`, `pickup_window_end`, `delivery_window_start`, `delivery_window_end`, `status`: `DRAFT`/`POSTED`/`BOOKED`/`CANCELLED`). Enforces `weight > 0` and `volume > 0` check constraints.
+- **`GET/POST /api/v1/loads/`**: List/search posted loads with multi-field filtering or create new load.
 - **`GET/PATCH /api/v1/loads/<uuid:id>/`**: Retrieve or update load (Owner restricted).
 - **`POST /api/v1/loads/<uuid:id>/post/`**: Transition load state `DRAFT` → `POSTED`.
 - **`POST /api/v1/loads/<uuid:id>/cancel/`**: Transition load state → `CANCELLED`.
+
+### Bidding & Booking System (`apps.marketplace`)
+- **`Bid`**: Transporter bid entity (`load`, `transporter`, `amount`, `currency`, `proposed_pickup_date`, `estimated_delivery_date`, `message`, `status`: `ACTIVE`/`WITHDRAWN`/`ACCEPTED`/`REJECTED`/`EXPIRED`, `expires_at`, `accepted_at`, `withdrawn_at`). Enforces `amount > 0` check constraint and unique active bid per transporter per load.
+- **`POST/GET /api/v1/loads/<uuid:load_id>/bids/`**: Verified transporter place bid / Load owner list bids.
+- **`GET/PATCH /api/v1/bids/<uuid:id>/`**: Retrieve or update active bid.
+- **`POST /api/v1/bids/<uuid:id>/withdraw/`**: Withdraw active bid (`ACTIVE` → `WITHDRAWN`).
+- **`POST /api/v1/bids/<uuid:id>/accept/`**: Accept bid & book load (`ACTIVE` → `ACCEPTED`, `Load` → `BOOKED`, competing active bids → `REJECTED`). Uses `transaction.atomic()` with `select_for_update()` row locking.
+- **`GET /api/v1/my-bids/`**: List bids placed by authenticated transporter.
 
 ---
 
