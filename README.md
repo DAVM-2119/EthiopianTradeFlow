@@ -23,10 +23,10 @@
 ---
 
 ## Frontend Web Application (`frontend/`)
-- **Vite & React Architecture**: Modular single-page application consuming TradeFlow Django REST API endpoints (`/api/v1/`).
-- **Axios HTTP Client**: Integrated in `src/api/axios.js` with automatic Bearer JWT header attachment, base URL `/api/v1`, and 401 token refresh queue processing.
-- **Routing & RBAC Guards**: `AppRoutes.jsx` configured with `ProtectedRoute` and `RoleRoute` wrappers for role-based navigation (Shipper, Transporter, Driver, Freight Forwarder, Customs Staff, Admin).
-- **Design System & Aesthetics**: Tailwind CSS glassmorphism theme, curated dark mode palettes (`bg-slate-950`), custom status badges, and responsive sidebar navigation.
+- **Role-Aware Navigation System**: Centralized configuration (`src/config/navigation.js`) providing tailored sidebar views for `SHIPPER`, `TRANSPORTER`, `DRIVER`, `FREIGHT_FORWARDER`, `CUSTOMS_STAFF`, and `ADMIN`.
+- **Responsive Layout & Sidebar**: Desktop collapsible sidebar (`w-64` / `w-16`) and mobile drawer overlay with smooth transitions (`Sidebar.jsx`).
+- **Navbar & Breadcrumbs**: Real-time location breadcrumb trail (`Breadcrumbs.jsx`), live online/offline network connection monitoring (`Navbar.jsx`), and user profile dropdown (`UserMenu.jsx`).
+- **Application State Engine**: Reusable data states (`EmptyState.jsx`) and offline corridor cache mode notifications (`OfflineState.jsx`).
 
 ---
 
