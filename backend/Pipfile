@@ -13,6 +13,7 @@ django-filter = "*"
 redis = "*"
 celery = "*"
 drf-spectacular = "*"
+djangorestframework-simplejwt = "*"
 
 [dev-packages]
 pytest = "*"

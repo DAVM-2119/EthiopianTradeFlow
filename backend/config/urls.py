@@ -5,6 +5,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('apps.core.urls')),
+    path('api/v1/auth/', include('apps.accounts.api.urls')),
     
     # OpenAPI Schema documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
