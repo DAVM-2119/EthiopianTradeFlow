@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'apps.eta',
     'apps.pricing',
     'apps.routing',
+    'apps.customs',
     'channels',
 ]
 

@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–16)
+## Domain Architecture (Phases 3–17)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -120,6 +120,18 @@
 - **`GET /api/v1/shipments/<uuid:shipment_id>/routes/`**: List candidate and active routes for a shipment.
 - **`GET /api/v1/routes/<uuid:route_id>/`**: Retrieve route detail and legs.
 - **`POST /api/v1/routes/<uuid:route_id>/reroute/`**: Propose or confirm/reject route modification.
+
+### Customs Documentation & Clearance Engine (`apps.customs`)
+- **`CustomsDocument`**: Digital customs document entity (`shipment`, `document_type`: `COMMERCIAL_INVOICE`/`PACKING_LIST`/`BILL_OF_LADING`/`CERTIFICATE_OF_ORIGIN`, `file`, `original_filename`, `file_size`, `mime_type`, `document_number`, `issue_date`, `declared_value`, `quantity`, `uploaded_by`, `clearance_status`: `DRAFT`/`SUBMITTED`/`UNDER_REVIEW`/`CLEARED`/`REJECTED`, `validation_status`: `PENDING`/`PASSED`/`FAILED`, `rejection_reason`, timestamps).
+- **Automated Validation Engine**: `DocumentValidator` (file size 10MB limit, allowed extensions `.pdf`, `.jpg`, `.png`, MIME sanitization); `ConsistencyValidator` (completeness check for 4 required document types, commercial invoice vs packing list quantity verification, declared financial value validation).
+- **Clearance Workflow & Permissions**: Shipper and Freight Forwarder document upload and submission (`DRAFT` $\rightarrow$ `SUBMITTED`); Customs Staff (`CUSTOMS_STAFF`) and Admin review workflow (`UNDER_REVIEW` $\rightarrow$ `CLEARED` / `REJECTED` with audit rejection reason).
+- **External Customs Integration Boundary**: `BaseCustomsProvider` interface and `MockCustomsProvider` implementation representing Ethiopian Customs Commission integration boundary.
+- **`POST /api/v1/shipments/<uuid:shipment_id>/customs/documents/`**: Upload customs document file & metadata.
+- **`GET /api/v1/shipments/<uuid:shipment_id>/customs/documents/`**: List all customs documents for a shipment.
+- **`GET /api/v1/customs/documents/<uuid:document_id>/`**: Retrieve document detail.
+- **`POST /api/v1/shipments/<uuid:shipment_id>/customs/validate/`**: Run automated document completeness and consistency checks.
+- **`POST /api/v1/shipments/<uuid:shipment_id>/customs/submit/`**: Submit shipment documents for customs clearance (`SUBMITTED`).
+- **`POST /api/v1/shipments/<uuid:shipment_id>/customs/status/`**: Update clearance review status (`UNDER_REVIEW`, `CLEARED`, `REJECTED` - Customs Staff / Admin).
 
 ---
 
