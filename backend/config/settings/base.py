@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'apps.accounts',
     'apps.profiles',
     'apps.fleet',
+    'apps.verification',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
