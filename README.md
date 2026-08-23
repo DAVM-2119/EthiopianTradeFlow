@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–12)
+## Domain Architecture (Phases 3–13)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -84,6 +84,17 @@
 - **`GET /api/v1/shipments/<uuid:shipment_id>/tracking/`**: Retrieve historical GPS position updates list for a shipment.
 - **`GET /api/v1/shipments/<uuid:shipment_id>/tracking/latest/`**: Retrieve latest recorded GPS position update for a shipment.
 - **`WS /ws/v1/shipments/<uuid:shipment_id>/tracking/?token=<jwt>`**: Real-time WebSocket connection endpoint. Joins `shipment_<shipment_id>` channel group via Redis channel layer. Authenticates via JWT and enforces object-level participant security (`Shipper`, `Transporter`, `Driver`, `Admin`). Broadcasts `tracking.position_updated` JSON events in real time.
+
+### Offline Synchronization Engine (`apps.synchronization`)
+- **`OfflineSyncEvent`**: Offline driver action record (`client_event_id` unique UUID key, `user`, `device_id`, `event_type`: `WAYPOINT_CHECKIN`/`INCIDENT_REPORT`/`TRACKING_EVENT`, `entity_type`, `entity_id`, `payload`, `client_created_at`, `client_updated_at`, `server_received_at`, `status`: `PENDING`/`SYNCING`/`SYNCED`/`FAILED`/`CONFLICT`, `attempt_count`, `last_attempt_at`, `synced_at`, `error_code`, `error_message`, `server_entity_id`).
+- **Idempotency**: Guarantees one logical client event = one server-side domain execution. Duplicate submissions return the existing `SYNCED` record without duplicate side-effects.
+- **Conflict Resolution**: Timestamp comparison against server state. Stale/superseded offline events are set to `status="CONFLICT"` with `error_code="STALE_TIMESTAMP"`.
+- **Transaction Safety**: Domain processing occurs in `transaction.atomic()`. Synced tracking events trigger `transaction.on_commit` broadcasting updates to Phase 12 WebSocket clients.
+- **`POST /api/v1/sync/events/`**: Submit single queued offline event.
+- **`POST /api/v1/sync/events/batch/`**: Submit batch of queued offline events returning per-event status results.
+- **`GET /api/v1/sync/events/<uuid:client_event_id>/`**: Retrieve offline sync event status by client UUID.
+- **`POST /api/v1/sync/events/<uuid:client_event_id>/retry/`**: Retry a failed offline sync event.
+- **`GET /api/v1/sync/status/`**: Retrieve user sync status summary.
 
 ---
 
