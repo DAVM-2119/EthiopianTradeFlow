@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–8)
+## Domain Architecture (Phases 3–9)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -57,6 +57,13 @@
 - **`POST /api/v1/bids/<uuid:id>/withdraw/`**: Withdraw active bid (`ACTIVE` → `WITHDRAWN`).
 - **`POST /api/v1/bids/<uuid:id>/accept/`**: Accept bid & book load (`ACTIVE` → `ACCEPTED`, `Load` → `BOOKED`, competing active bids → `REJECTED`). Uses `transaction.atomic()` with `select_for_update()` row locking.
 - **`GET /api/v1/my-bids/`**: List bids placed by authenticated transporter.
+
+### Freight Matching Engine (`apps.matching`)
+- **`MatchRecommendation`**: Deterministic candidate recommendation entity (`load`, `transporter`, `rank`, `total_score`, `cost_score`, `reliability_score`, `fuel_efficiency_score`, `proximity_score`, `availability_score`, `explanation`, `algorithm_version`, `generated_at`, `is_active`).
+- **Weighted Scoring Algorithm v1**: Total score = $0.30 \times \text{Cost} + 0.25 \times \text{Reliability} + 0.15 \times \text{Fuel} + 0.20 \times \text{Proximity} + 0.10 \times \text{Availability}$.
+- **`POST /api/v1/loads/<uuid:load_id>/matches/`**: Generate or regenerate ranked recommendations shortlist for a posted load.
+- **`GET /api/v1/loads/<uuid:load_id>/matches/`**: Retrieve active recommendation shortlist (Load owner / Admin).
+- **`GET /api/v1/matches/<uuid:id>/`**: Retrieve recommendation detail with score breakdown (Load owner / Transporter / Admin).
 
 ---
 
