@@ -7,8 +7,10 @@ export const API_ENDPOINTS = {
   ME: '/auth/me/',
   PASSWORD_CHANGE: '/auth/password/change/',
 
-  // Health
+  // Health & Dashboard
   HEALTH: '/health/',
+  DASHBOARD_SUMMARY: '/dashboard/summary/',
+
 
   // Profiles
   PROFILE: '/profiles/me/',

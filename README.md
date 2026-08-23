@@ -22,10 +22,15 @@
 
 ---
 
-## Frontend Web Application (`frontend/`)
-- **JWT Authentication Engine**: Login (`/api/v1/auth/login/`), registration (`/api/v1/auth/register/`), transparent 401 token refresh queue, token blacklisting logout (`/api/v1/auth/logout/`), and session initial loading (`AuthLoadingState.jsx`).
-- **Profile & Identity Management**: View account identity (`ProfilePage.jsx`), edit user details (`EditProfilePage.jsx` via `PATCH /api/v1/auth/me/`), and update passwords (`ChangePasswordPage.jsx` via `POST /api/v1/auth/password/change/`).
-- **Role-Aware Authorization**: Centralized navigation and route guards (`ProtectedRoute.jsx`, `RoleRoute.jsx`, `navigation.js`) filtering navigation by user role (`SHIPPER`, `TRANSPORTER`, `DRIVER`, `FREIGHT_FORWARDER`, `CUSTOMS_STAFF`, `ADMIN`).
+## Frontend Web Application & Role Dashboard (`frontend/`)
+- **Role-Aware Dashboard & Metrics Engine (`GET /api/v1/dashboard/summary/`)**: Real-time aggregated metric cards, charts, and activity feeds for each role:
+  - **Shipper Dashboard (`ShipperDashboard.jsx`)**: Active loads, in-transit cargo, pending bids, completed shipments, monthly throughput bar charts, freight status distribution.
+  - **Transporter Dashboard (`TransporterDashboard.jsx`)**: Available freight listings, active shipments, fleet vehicle count, confirmed payout earnings (ETB), on-time delivery rate, revenue trend charts.
+  - **Driver Dashboard (`DriverDashboard.jsx`)**: Assigned route, completed trips, active corridor safety alerts, live GPS location status (15s interval).
+  - **Freight Forwarder Dashboard (`FreightForwarderDashboard.jsx`)**: Managed freight throughput, customs clearance pipeline, corridor movement speed.
+  - **Customs Staff Dashboard (`CustomsStaffDashboard.jsx`)**: Pending declaration review queue, approved/rejected customs document statistics, total intake.
+  - **Admin Dashboard (`AdminDashboard.jsx`)**: Platform user growth, pending verification queue, global active shipments, financial dispute logs.
+- **JWT Authentication & Profile Engine**: Secure login, registration, token refresh queue, token blacklisting logout, profile updates (`PATCH /api/v1/auth/me/`), and password updates (`POST /api/v1/auth/password/change/`).
 
 ---
 
@@ -65,5 +70,6 @@ pipenv run pytest
 pipenv run python manage.py runserver
 ```
 
-### Health Check Endpoint
-`GET /api/v1/health/` verifies Django, PostgreSQL, PostGIS, and Redis status.
+### Health Check & Dashboard Summary Endpoints
+- `GET /api/v1/health/` — Verifies Django, PostgreSQL, PostGIS, and Redis connection status.
+- `GET /api/v1/dashboard/summary/` — Returns role-specific aggregated metric cards, charts, and activity feeds.
