@@ -21,7 +21,7 @@
 
 ---
 
-## Domain Architecture (Phases 3–17)
+## Domain Architecture (Phases 3–18)
 
 ### User Identity & Profiles (`apps.accounts` & `apps.profiles`)
 - **`User`**: Custom email-authenticated identity model inheriting `BaseModel` (UUIDv4).
@@ -132,6 +132,18 @@
 - **`POST /api/v1/shipments/<uuid:shipment_id>/customs/validate/`**: Run automated document completeness and consistency checks.
 - **`POST /api/v1/shipments/<uuid:shipment_id>/customs/submit/`**: Submit shipment documents for customs clearance (`SUBMITTED`).
 - **`POST /api/v1/shipments/<uuid:shipment_id>/customs/status/`**: Update clearance review status (`UNDER_REVIEW`, `CLEARED`, `REJECTED` - Customs Staff / Admin).
+
+### Fuel Consumption Analytics & Monitoring Engine (`apps.analytics`)
+- **`TripFuelRecord`**: Primary fuel record model (`shipment`, `vehicle`, `driver`, `distance_km`, `estimated_fuel_liters`, `actual_fuel_liters`, `fuel_efficiency_km_per_liter`, `fuel_variance_liters`, `fuel_variance_percentage`, `data_source`: `MANUAL`/`TELEMATICS`/`FUEL_STATION`/`IMPORTED`/`CALCULATED`, `recorded_at`, `notes`).
+- **Calculated Dynamic Analytics**: SQL aggregations (`Sum`, `Avg`, `Count`) generating vehicle-level and driver-level metrics without duplicating database tables.
+- **Rule-Based Recommendation Engine (FR-07.2)**: `BaseFuelAnalyzer` & `RuleBasedFuelAnalyzer` analyzing vehicle baseline variance, eco-driving advice, and corridor fuel efficiency optimization. ML-ready for Phase 25.
+- **Telematics Data Ingestion Boundary**: `BaseFuelDataProvider` & `ManualFuelDataProvider`.
+- **`POST /api/v1/shipments/<uuid:shipment_id>/fuel/`**: Record or update fuel info for a shipment.
+- **`GET /api/v1/shipments/<uuid:shipment_id>/fuel/`**: Retrieve fuel record for a shipment.
+- **`GET /api/v1/vehicles/<uuid:vehicle_id>/fuel-metrics/`**: Vehicle fuel efficiency metrics summary & breakdown.
+- **`GET /api/v1/drivers/<uuid:driver_id>/fuel-metrics/`**: Driver fuel efficiency metrics summary & breakdown.
+- **`GET /api/v1/analytics/fuel/trends/`**: Aggregated monthly/weekly fuel trends.
+- **`GET /api/v1/analytics/fuel/recommendations/`**: Rule-based fuel-saving recommendations.
 
 ---
 

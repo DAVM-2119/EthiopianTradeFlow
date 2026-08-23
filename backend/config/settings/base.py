@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'apps.pricing',
     'apps.routing',
     'apps.customs',
+    'apps.analytics',
     'channels',
 ]
 
