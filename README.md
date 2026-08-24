@@ -17,8 +17,17 @@
 - **Asynchronous Task Queue**: Celery & Redis (`celery`, `redis`)
 - **Database**: PostgreSQL with PostGIS extension (GeoDjango spatial engine)
 - **Caching & Broker**: Redis
-- **API Documentation**: drf-spectacular (OpenAPI 3.0)
-- **Test Framework**: Pytest (`pytest-django`, `pytest-asyncio`) & Node Test Engine
+- **ML & Optimization Engine**: Scikit-Learn `GradientBoostingRegressor`, Pandas, NumPy, Joblib, Google OR-Tools constraint solver
+
+---
+
+## ML & Advanced Optimization Engine (`backend/ml/`)
+- **Scikit-Learn GradientBoostingRegressor**: Corridor travel duration prediction model trained on remaining distance, cargo weight, vehicle type, hour of day, day of week, incident count, risk level, and average speed.
+- **Safe Fallback Architecture**: `ETAService` checks active `MLETAPredictor` and gracefully falls back to `RuleBasedETAPredictor` on missing model file, invalid inputs, or inference exception.
+- **Model Registry & Versioning**: Thread-safe registry (`ModelRegistry`) tracking versioned `.joblib` models and `.json` metadata artifacts with auto-discovery.
+- **Synthetic Corridor Data Generator**: Development data generator (`generate_synthetic_corridor_dataset`) producing 5,000 corridor freight movements for training and evaluation.
+- **Advanced Multi-Criteria Matcher**: Composite ranking model (`AdvancedMatcher`) scoring transporter bids based on price, on-time delivery rate, cancellation history, and corridor experience.
+- **Google OR-Tools Route Optimizer**: Vehicle routing solver (`AdvancedRouteOptimizer`) computing optimal multi-checkpoint itineraries under capacity and risk constraints.
 
 ---
 
@@ -45,6 +54,20 @@
 ---
 
 ## Verification & Execution Commands
+
+### ML Model Training & Evaluation Commands (`backend/`)
+```bash
+cd backend
+
+# Generate synthetic development dataset (5,000 corridor trips)
+pipenv run python manage.py generate_ml_demo_data
+
+# Train and register Scikit-Learn GradientBoostingRegressor model
+pipenv run python manage.py train_eta_model --model-version eta-v1
+
+# Benchmark active ML model vs rule-based baseline
+pipenv run python manage.py evaluate_eta_model
+```
 
 ### Driver Mobile Application (`mobile/`)
 ```bash
