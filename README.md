@@ -22,12 +22,14 @@
 
 ---
 
-## Frontend Web Application & Marketplace (`frontend/`)
+## Frontend Web Application (`frontend/`)
+- **Bidding & Booking Engine (`/bids`, `/bids/:id`, `/loads/:id`)**:
+  - **Transporter Bidding Portal**: Rate bid creation, updating, and withdrawal (`ACTIVE`, `WITHDRAWN`). Form validation with React Hook Form + Zod.
+  - **Transporter Bids Dashboard (`MyBidsPage.jsx`)**: Comprehensive list of submitted bids with status filters (`All`, `Active`, `Accepted`, `Rejected`, `Withdrawn`).
+  - **Shipper Bid Evaluation Matrix (`BidComparison.jsx`)**: Side-by-side bid comparison matrix highlighting rate offers, proposed pickup/delivery dates, and transporter reliability badges.
+  - **Booking Acceptance Modal (`AcceptBidModal.jsx`)**: Confirms rate bid acceptance, transitioning bid status to `ACCEPTED` and load status to `BOOKED` while rejecting competing bids (`POST /api/v1/bids/{id}/accept/`).
 - **Marketplace & Load Management (`/loads`, `/marketplace`)**:
-  - **Freight Discovery (`LoadsPage.jsx`)**: Search, filter by origin/destination, cargo type, and status (`DRAFT`, `POSTED`, `BOOKED`, `CANCELLED`). Tabs for Available Marketplace Freight vs My Posted Loads.
-  - **Load Creation (`CreateLoadPage.jsx`)**: Form with React Hook Form + Zod validation submitting to `POST /api/v1/loads/`.
-  - **Load Details & Lifecycle (`LoadDetailsPage.jsx`)**: Displays complete cargo specifications, route info, shipper identity, publish action (`POST /api/v1/loads/{id}/post/`), and cancel action (`POST /api/v1/loads/{id}/cancel/`).
-  - **Load Editing (`EditLoadPage.jsx`)**: Modifies draft or posted load details via `PATCH /api/v1/loads/{id}/`.
+  - Freight discovery, search, multi-field filter toolbar, load creation, editing, and publishing.
 - **Role-Aware Dashboard & Metrics Engine (`GET /api/v1/dashboard/summary/`)**: Real-time aggregated metrics for Shippers, Transporters, Drivers, Freight Forwarders, Customs Staff, and Admins.
 - **JWT Authentication & Profile Engine**: Secure authentication, profile management, and password updates.
 
@@ -72,9 +74,11 @@ pipenv run python manage.py runserver
 ### Key API Endpoints
 - `GET /api/v1/health/` — System health check.
 - `GET /api/v1/dashboard/summary/` — Role-aware dashboard metrics.
-- `GET /api/v1/loads/` — Load list & marketplace search (`origin_city`, `destination_city`, `cargo_type`, `status`, `my_loads`).
-- `POST /api/v1/loads/` — Post a new load.
-- `GET /api/v1/loads/{id}/` — Retrieve load details.
-- `PATCH /api/v1/loads/{id}/` — Update load specs.
-- `POST /api/v1/loads/{id}/post/` — Transition status to `POSTED`.
-- `POST /api/v1/loads/{id}/cancel/` — Transition status to `CANCELLED`.
+- `GET /api/v1/loads/` — Load list & marketplace search.
+- `GET /api/v1/loads/{id}/bids/` — List bids submitted for a freight load.
+- `POST /api/v1/loads/{id}/bids/` — Submit a new transporter rate bid.
+- `GET /api/v1/my-bids/` — List transporter's submitted bids.
+- `GET /api/v1/bids/{id}/` — Retrieve single bid details.
+- `PATCH /api/v1/bids/{id}/` — Update an active bid rate or schedule.
+- `POST /api/v1/bids/{id}/withdraw/` — Withdraw an active bid offer.
+- `POST /api/v1/bids/{id}/accept/` — Accept bid & transition load to `BOOKED`.

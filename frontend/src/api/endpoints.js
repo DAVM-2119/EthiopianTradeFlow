@@ -24,9 +24,14 @@ export const API_ENDPOINTS = {
   VERIFICATION_SUBMIT: '/verification/me/submit/',
   ADMIN_VERIFICATIONS: '/admin/verifications/',
 
-  // Loads & Marketplace
+  // Loads & Marketplace & Bids
   LOADS: '/loads/',
   MY_BIDS: '/my-bids/',
+  LOAD_BIDS: (loadId) => `/loads/${loadId}/bids/`,
+  BID_DETAIL: (bidId) => `/bids/${bidId}/`,
+  BID_WITHDRAW: (bidId) => `/bids/${bidId}/withdraw/`,
+  BID_ACCEPT: (bidId) => `/bids/${bidId}/accept/`,
+
 
   // Freight Matching
   MATCHES: '/matches/',
