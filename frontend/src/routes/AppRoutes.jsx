@@ -19,6 +19,19 @@ import { EditLoadPage } from '../pages/loads/EditLoadPage';
 import { MyBidsPage } from '../pages/bids/MyBidsPage';
 import { BidDetailsPage } from '../pages/bids/BidDetailsPage';
 
+// Phase 23.7 Shipments & Tracking Pages
+import { ShipmentsPage } from '../pages/shipments/ShipmentsPage';
+import { ShipmentDetailsPage } from '../pages/shipments/ShipmentDetailsPage';
+import { LiveTrackingPage } from '../pages/shipments/LiveTrackingPage';
+
+// Phase 23.8 Customs, Analytics & Payments Pages
+import { CustomsDocumentsPage } from '../pages/customs/CustomsDocumentsPage';
+import { FuelAnalyticsPage } from '../pages/analytics/FuelAnalyticsPage';
+import { TransporterPerformancePage } from '../pages/analytics/TransporterPerformancePage';
+import { PaymentsPage } from '../pages/payments/PaymentsPage';
+import { PaymentDetailsPage } from '../pages/payments/PaymentDetailsPage';
+import { DisputesPage } from '../pages/payments/DisputesPage';
+
 import { NotFoundPage } from '../pages/NotFoundPage';
 
 export const AppRoutes = () => {
@@ -50,16 +63,22 @@ export const AppRoutes = () => {
           <Route path="/bids" element={<MyBidsPage />} />
           <Route path="/bids/:id" element={<BidDetailsPage />} />
 
-          {/* Future Sub-phase Domain Shell Placeholders */}
-          <Route path="/shipments" element={<DashboardPage />} />
+          {/* Phase 23.7 Shipment & Tracking Sub-routes */}
+          <Route path="/shipments" element={<ShipmentsPage />} />
+          <Route path="/shipments/:id" element={<ShipmentDetailsPage />} />
+          <Route path="/tracking/:id" element={<LiveTrackingPage />} />
 
-          <Route path="/tracking" element={<DashboardPage />} />
+          {/* Phase 23.8 Customs, Analytics & Payments Sub-routes */}
+          <Route path="/customs" element={<CustomsDocumentsPage />} />
+          <Route path="/analytics/fuel" element={<FuelAnalyticsPage />} />
+          <Route path="/analytics/performance" element={<TransporterPerformancePage />} />
+          <Route path="/analytics" element={<FuelAnalyticsPage />} />
+          <Route path="/payments" element={<PaymentsPage />} />
+          <Route path="/payments/disputes" element={<DisputesPage />} />
+          <Route path="/payments/:id" element={<PaymentDetailsPage />} />
+
           <Route path="/fleet/*" element={<DashboardPage />} />
-          <Route path="/customs" element={<DashboardPage />} />
-          <Route path="/customs/*" element={<DashboardPage />} />
-          <Route path="/payments" element={<DashboardPage />} />
           <Route path="/risk" element={<DashboardPage />} />
-          <Route path="/analytics" element={<DashboardPage />} />
           <Route path="/notifications" element={<DashboardPage />} />
 
           <Route element={<RoleRoute allowedRoles={['ADMIN']} />}>
@@ -72,3 +91,4 @@ export const AppRoutes = () => {
     </Routes>
   );
 };
+

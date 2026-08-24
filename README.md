@@ -22,16 +22,27 @@
 
 ---
 
-## Frontend Web Application (`frontend/`)
-- **Bidding & Booking Engine (`/bids`, `/bids/:id`, `/loads/:id`)**:
-  - **Transporter Bidding Portal**: Rate bid creation, updating, and withdrawal (`ACTIVE`, `WITHDRAWN`). Form validation with React Hook Form + Zod.
-  - **Transporter Bids Dashboard (`MyBidsPage.jsx`)**: Comprehensive list of submitted bids with status filters (`All`, `Active`, `Accepted`, `Rejected`, `Withdrawn`).
-  - **Shipper Bid Evaluation Matrix (`BidComparison.jsx`)**: Side-by-side bid comparison matrix highlighting rate offers, proposed pickup/delivery dates, and transporter reliability badges.
-  - **Booking Acceptance Modal (`AcceptBidModal.jsx`)**: Confirms rate bid acceptance, transitioning bid status to `ACCEPTED` and load status to `BOOKED` while rejecting competing bids (`POST /api/v1/bids/{id}/accept/`).
-- **Marketplace & Load Management (`/loads`, `/marketplace`)**:
-  - Freight discovery, search, multi-field filter toolbar, load creation, editing, and publishing.
-- **Role-Aware Dashboard & Metrics Engine (`GET /api/v1/dashboard/summary/`)**: Real-time aggregated metrics for Shippers, Transporters, Drivers, Freight Forwarders, Customs Staff, and Admins.
-- **JWT Authentication & Profile Engine**: Secure authentication, profile management, and password updates.
+## Complete React Web Application Suite (`frontend/`)
+- **Shipments & Live Tracking (`/shipments`, `/shipments/:id`, `/tracking/:id`)**:
+  - Role-aware shipment management grid (`ShipmentsPage.jsx`).
+  - Milestone lifecycle progression bar (`ShipmentTimeline.jsx`) tracking statuses (`BOOKED`, `ASSIGNED`, `PICKUP_READY`, `IN_TRANSIT`, `CUSTOMS_PROCESSING`, `CUSTOMS_CLEARED`, `DELIVERED`, `COMPLETED`).
+  - Interactive GPS live corridor map (`ShipmentMap.jsx`) & real-time WebSocket telemetry stream (`useShipmentTracking.js`).
+  - AI predictive ETA card (`ETAInfoCard.jsx`).
+- **Customs & Digital Declaration (`/customs`)**:
+  - Declaration management for Commercial Invoices, Packing Lists, Bills of Lading, and Certificates of Origin.
+  - Document upload modal (`DocumentUploadForm.jsx`) with multipart upload support.
+- **Analytics & Efficiency (`/analytics/fuel`, `/analytics/performance`)**:
+  - Fuel consumption trends and AI eco-driving recommendations.
+  - Transporter performance dashboard benchmarking on-time delivery rates, incident rates, and platinum verification tier.
+- **Payments, Settlements & Disputes (`/payments`, `/payments/:id`, `/payments/disputes`)**:
+  - Escrow payment management, automated platform commission calculations, and transporter payouts.
+  - Dispute resolution claims portal.
+- **Bidding & Booking Engine (`/bids`, `/bids/:id`)**:
+  - Transporter bidding portal, bid comparison matrix (`BidComparison.jsx`), and acceptance confirmation modal.
+- **Marketplace & Freight Listings (`/loads`, `/marketplace`)**:
+  - Load creation, publishing, search, filtering, and detail management.
+- **Role-Aware Dashboard & Metrics Engine (`/dashboard`)**:
+  - Aggregated metrics for Shippers, Transporters, Drivers, Freight Forwarders, Customs Staff, and Admins.
 
 ---
 
@@ -44,7 +55,7 @@ cd frontend
 # Install Node dependencies
 npm install
 
-# Start Vite development server (proxies /api to http://127.0.0.1:8000)
+# Start Vite development server
 npm run dev
 
 # Execute production build
@@ -58,9 +69,6 @@ cd backend
 # Verify Django configuration
 pipenv run python manage.py check
 
-# Check for unapplied migrations
-pipenv run python manage.py makemigrations --check
-
 # Execute database migrations
 pipenv run python manage.py migrate
 
@@ -71,14 +79,14 @@ pipenv run pytest
 pipenv run python manage.py runserver
 ```
 
-### Key API Endpoints
+### Primary API Endpoints
 - `GET /api/v1/health/` — System health check.
-- `GET /api/v1/dashboard/summary/` — Role-aware dashboard metrics.
-- `GET /api/v1/loads/` — Load list & marketplace search.
-- `GET /api/v1/loads/{id}/bids/` — List bids submitted for a freight load.
-- `POST /api/v1/loads/{id}/bids/` — Submit a new transporter rate bid.
-- `GET /api/v1/my-bids/` — List transporter's submitted bids.
-- `GET /api/v1/bids/{id}/` — Retrieve single bid details.
-- `PATCH /api/v1/bids/{id}/` — Update an active bid rate or schedule.
-- `POST /api/v1/bids/{id}/withdraw/` — Withdraw an active bid offer.
-- `POST /api/v1/bids/{id}/accept/` — Accept bid & transition load to `BOOKED`.
+- `GET /api/v1/dashboard/summary/` — Role-aware metrics dashboard.
+- `GET /api/v1/loads/` — Load marketplace API.
+- `GET /api/v1/shipments/` — Shipment lifecycle API.
+- `GET /api/v1/shipments/{id}/tracking/` — Live tracking telemetry history.
+- `GET /api/v1/shipments/{id}/customs/documents/` — Customs declaration documents.
+- `GET /api/v1/analytics/fuel/trends/` — Fuel consumption analytics.
+- `GET /api/v1/analytics/transporter/performance/` — Transporter performance metrics.
+- `GET /api/v1/payments/` — Payment escrow ledger.
+- `GET /api/v1/payments/disputes/` — Disputes portal API.

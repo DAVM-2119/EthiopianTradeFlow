@@ -36,39 +36,53 @@ export const API_ENDPOINTS = {
   // Freight Matching
   MATCHES: '/matches/',
 
-  // Shipments
+  // Shipments & Tracking
   SHIPMENTS: '/shipments/',
-
-  // Tracking
+  SHIPMENT_DETAIL: (id) => `/shipments/${id}/`,
+  SHIPMENT_ASSIGN: (id) => `/shipments/${id}/assign/`,
+  SHIPMENT_TRANSITION: (id) => `/shipments/${id}/transition/`,
+  SHIPMENT_CANCEL: (id) => `/shipments/${id}/cancel/`,
+  SHIPMENT_EVENTS: (id) => `/shipments/${id}/events/`,
+  SHIPMENT_PROOF_OF_DELIVERY: (id) => `/shipments/${id}/proof-of-delivery/`,
+  SHIPMENT_COMPLETE: (id) => `/shipments/${id}/complete/`,
+  SHIPMENT_TRACKING_HISTORY: (id) => `/shipments/${id}/tracking/`,
+  SHIPMENT_TRACKING_LATEST: (id) => `/shipments/${id}/tracking/latest/`,
   TRACKING_EVENTS: '/tracking/events/',
 
-  // Sync
-  SYNC_EVENTS: '/sync/events/',
-
-  // Pricing
-  PRICING: '/pricing/',
-
-  // Routing
-  ROUTES: '/routes/',
-
   // Customs
-  CUSTOMS: '/customs/',
+  SHIPMENT_CUSTOMS_DOCUMENTS: (id) => `/shipments/${id}/customs/documents/`,
+  CUSTOMS_DOCUMENT_DETAIL: (docId) => `/customs/documents/${docId}/`,
+  SHIPMENT_CUSTOMS_VALIDATE: (id) => `/shipments/${id}/customs/validate/`,
+  SHIPMENT_CUSTOMS_SUBMIT: (id) => `/shipments/${id}/customs/submit/`,
+  SHIPMENT_CUSTOMS_STATUS: (id) => `/shipments/${id}/customs/status/`,
 
-  // Fuel & Analytics
-  ANALYTICS: '/analytics/',
+  // Analytics & Fuel
+  SHIPMENT_FUEL: (id) => `/shipments/${id}/fuel/`,
+  FUEL_TRENDS: '/analytics/fuel/trends/',
+  FUEL_RECOMMENDATIONS: '/analytics/fuel/recommendations/',
+  TRANSPORTER_PERFORMANCE: '/analytics/transporter/performance/',
+  TRANSPORTER_PERFORMANCE_HISTORY: '/analytics/transporter/performance/history/',
 
   // Risk & Security
   RISK_ZONES: '/risk-zones/',
   INCIDENTS: '/incidents/',
   SECURITY_ALERTS: '/security-alerts/',
 
-  // Payments & Financial Settlement
+  // Payments, Payouts & Disputes
   PAYMENTS: '/payments/',
+  PAYMENT_DETAIL: (id) => `/payments/${id}/`,
+  PAYMENT_INITIATE: (id) => `/payments/${id}/initiate/`,
+  PAYMENT_CONFIRM: (id) => `/payments/${id}/confirm/`,
   PAYOUTS: '/payments/payouts/',
+  PAYOUT_DETAIL: (id) => `/payments/payouts/${id}/`,
   SETTLEMENTS: '/payments/settlements/',
+  SETTLEMENT_DETAIL: (id) => `/payments/settlements/${id}/`,
   DISPUTES: '/payments/disputes/',
+  DISPUTE_DETAIL: (id) => `/payments/disputes/${id}/`,
+  DISPUTE_RESOLVE: (id) => `/payments/disputes/${id}/resolve/`,
 
   // Notifications
   NOTIFICATIONS: '/notifications/',
   NOTIFICATION_PREFERENCES: '/notifications/preferences/',
 };
+
