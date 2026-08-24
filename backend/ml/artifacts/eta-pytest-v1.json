@@ -18,7 +18,7 @@
     "rmse": 15.9,
     "r2": 0.9973
   },
-  "created_at": "2026-08-24T06:21:13.709157",
+  "created_at": "2026-08-24T06:45:54.745607",
   "description": "Scikit-Learn Gradient Boosting Regressor for Djibouti-Modjo Highway ETA prediction.",
   "is_active": true
 }
